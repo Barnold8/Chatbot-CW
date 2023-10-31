@@ -7,7 +7,7 @@ from collections import Counter
 from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
 
 # GLOBAL VARIABLE DECLARATION
-n_param = 2
+n_param = 3
 debug = False
 # END OF GLOBAL VARIABLE DECLARATION
 
@@ -26,7 +26,7 @@ def tokenize(inp : str)-> list[str]:
 
     inp = inp.replace("\n"," ")
 
-    "".join([char for char in inp if char not in custom_punctuation])  # Make the file contents into a singular string
+    inp = "".join([char for char in inp if char not in custom_punctuation])  # Make the file contents into a singular string
 
     return [word_tokenize(sent) for sent in sent_tokenize(inp)]
 
@@ -40,10 +40,9 @@ def padder(inp : list[str]) -> nltk.lm.models.Laplace :
     corpus,vocab = padded_everygram_pipeline(n_param,inp)
     lm = Laplace(n_param)
     lm.fit(corpus,vocab)
+
     return lm
 
-lm = padder(tokenize("This is a form of a document")) # lm means language model 
 
-# for vocab_token in lm . vocab :
-#     score = lm . score ( vocab_token )
-#     print (" Unigram : [" + vocab_token + "] : " + str( score ))
+
+
