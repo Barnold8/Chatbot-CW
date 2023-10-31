@@ -21,7 +21,7 @@ def tokenize(inp : str)-> list[str]:
     if debug:
         print("DEBUG: Processing inp string...")
 
-    custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-"  # Have a string containing punctuation we want to remove from our text
+    custom_punctuation  = string.punctuation + "'" + "-" + "‘" + "-"  # Have a string containing punctuation we want to remove from our text
     custom_punctuation.replace(".", "")                               # Remove the full stop in the custom punctuation (We need this to identify what and what isnt a sentence)
 
     inp = inp.replace("\n"," ")
@@ -43,6 +43,17 @@ def padder(inp : list[str]) -> nltk.lm.models.Laplace :
 
     return lm
 
+def syntatic_aggregation(s1,s2):
+
+    subj1, verb1, obj1 = s1.split()
+    subj2, verb2, obj2 = s2.split()
+
+    if subj1 == subj2 and verb1 == verb2:
+        return f"{ subj1 } { verb1 } { obj1 } and { obj2 }."
+    else:
+        return None
 
 
 
+
+# Page 15 
