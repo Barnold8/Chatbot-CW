@@ -1,15 +1,24 @@
 import nltk , re , pprint , string
-
+import numpy as np
 from nltk import word_tokenize , sent_tokenize
 from nltk . util import pad_sequence
 from nltk . lm import MLE , Laplace
 from collections import Counter
 from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 
 # GLOBAL VARIABLE DECLARATION
 n_param = 3
 debug = False
 # END OF GLOBAL VARIABLE DECLARATION
+
+class Intent:
+
+    def __init__(self) -> None:
+        pass
+
 
 def tokenize(inp : str)-> list[str]:
     """
@@ -17,10 +26,8 @@ def tokenize(inp : str)-> list[str]:
          takes input of type string, a human readable sentence and tokenizes it
     return: list of tokens of type string
     """
-
-    if debug:
-        print("DEBUG: Processing inp string...")
-
+    inp = inp.lower()
+    
     custom_punctuation  = string.punctuation + "'" + "-" + "‘" + "-"  # Have a string containing punctuation we want to remove from our text
     custom_punctuation.replace(".", "")                               # Remove the full stop in the custom punctuation (We need this to identify what and what isnt a sentence)
 
@@ -52,6 +59,8 @@ def syntatic_aggregation(s1,s2):
         return f"{ subj1 } { verb1 } { obj1 } and { obj2 }."
     else:
         return None
+    
+
 
 
 
