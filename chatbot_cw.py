@@ -3,21 +3,32 @@ import numpy as np
 from nltk import word_tokenize , sent_tokenize
 from nltk . util import pad_sequence
 from nltk . lm import MLE , Laplace
-from collections import Counter
 from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # GLOBAL VARIABLE DECLARATION
 n_param = 3
 debug = False
+running = True
+
+# The intents to understand what the user is saying 
+intents = [ 
+
+    {"intent": "greeting", "examples": ["Hi there!", "Hello!", "Hey"]},
+    {"intent": "goodbye", "examples": ["Goodbye", "Bye", "See you later"]},
+    {"intent": "weather", "examples": ["What's the weather today?", "Tell me the weather forecast"]},
+    {"intent": "thanks", "examples": ["Thank you!", "Thanks a lot"]},
+    {"intent": "stop", "examples" : ["stop the application","stop listening","stop"]},
+]
+
 # END OF GLOBAL VARIABLE DECLARATION
 
-class Intent:
 
-    def __init__(self) -> None:
-        pass
+def intent(input: str, intents: list[dict[str,any]]):
+
+    pass
 
 
 def tokenize(inp : str)-> list[str]:
@@ -61,8 +72,16 @@ def syntatic_aggregation(s1,s2):
         return None
     
 
+# Program loop
 
 
+while running :
+    user_input = input("Say something: ").lower()
+
+    if "stop" in user_input:
+        running = False
+    else :
+        print (f'You are searching for { user_input}')
 
 
 # Page 15 
