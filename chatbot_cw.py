@@ -5,30 +5,52 @@ from nltk . util import pad_sequence
 from nltk . lm import MLE , Laplace
 from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 
 # GLOBAL VARIABLE DECLARATION
 n_param = 3
 debug = False
 running = True
 
-# The intents to understand what the user is saying 
-intents = [ 
+
+
+# END OF GLOBAL VARIABLE DECLARATION
+
+
+def intent(user_input: str):
+
+    # The intents to understand what the user is saying 
+    intents = [ 
 
     {"intent": "greeting", "examples": ["Hi there!", "Hello!", "Hey"]},
     {"intent": "goodbye", "examples": ["Goodbye", "Bye", "See you later"]},
     {"intent": "weather", "examples": ["What's the weather today?", "Tell me the weather forecast"]},
     {"intent": "thanks", "examples": ["Thank you!", "Thanks a lot"]},
     {"intent": "stop", "examples" : ["stop the application","stop listening","stop"]},
-]
+    ]
 
-# END OF GLOBAL VARIABLE DECLARATION
+    X = [] # The X, input data/ features
+    y = [] # The Y, what we are learning
 
 
-def intent(input: str, intents: list[dict[str,any]]):
+    for intent_data in intents:
+        intent = intent_data["intent"]
+        examples = intent_data["examples"]
+        X.extend(examples)
+        y.extend([intent] * len(examples))
 
-    pass
+
+    text_clf = Pipeline([
+        ('vectorizer', CountVectorizer()),  # Convert text data to a bag-of-words representation
+        ('classifier', MultinomialNB())  # Multinomial Naive Bayes classifier
+    ])
+
+    text_clf.fit(X, y)
+
+    predicted_intent = text_clf.predict([user_input])
+    print(f"Predicted intent: {predicted_intent[0]}")
 
 
 def tokenize(inp : str)-> list[str]:
@@ -73,7 +95,8 @@ def syntatic_aggregation(s1,s2):
     
 
 # Program loop
-
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 while running :
     user_input = input("Say something: ").lower()
@@ -82,6 +105,6 @@ while running :
         running = False
     else :
         print (f'You are searching for { user_input}')
-
+    intent(user_input)
 
 # Page 15 
