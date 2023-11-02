@@ -8,49 +8,73 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
+from nltk.tokenize import PunktSentenceTokenizer
+
+
+### PLAYLIST MANAGEMENT CHATBOT
+
 
 # GLOBAL VARIABLE DECLARATION
 n_param = 3
 debug = False
 running = True
-
-
-
+user_name = "Unknown user"
 # END OF GLOBAL VARIABLE DECLARATION
 
 
 def intent(user_input: str):
+    """
+    Desc:
+        This functions' is fairly complex for its use. I use the Naive Bayes classifier to help
+        predict what the users intent is via their speech. In this we, have a dictionary of 
+        intents, these will help us relate to what the user wants via their speech. 
+        We input these intents into an X and Y to help the classfier learn what everything is.
+        The code will the turn it into a BOW model to help pre-process the text for classification.
+        With this we can pass it to the classifier. We can use the predict function which will use some
+        underlying formulae to predict the closest likelyhood intent. In my own opinion, I think it should
+        use cosine similarity to find the closest vector relative but it may not use that formula.
+
+    return: string that says what the intent was
+
+    """
+    # May be a better idea to use a vector space model and then cosine similarity
 
     # The intents to understand what the user is saying 
     intents = [ 
 
-    {"intent": "greeting", "examples": ["Hi there!", "Hello!", "Hey"]},
-    {"intent": "goodbye", "examples": ["Goodbye", "Bye", "See you later"]},
-    {"intent": "weather", "examples": ["What's the weather today?", "Tell me the weather forecast"]},
-    {"intent": "thanks", "examples": ["Thank you!", "Thanks a lot"]},
-    {"intent": "stop", "examples" : ["stop the application","stop listening","stop"]},
+        {"intent": "greeting", "examples": ["hi there!", "hello!", "hey"]},
+        {"intent": "thanks", "examples": ["thank you!", "thanks a lot"]},
+        {"intent": "name","examples":["my name is","please call me","I want to be known as","I am"]},
+        {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist?"]},
+        {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
+
     ]
 
     X = [] # The X, input data/ features
     y = [] # The Y, what we are learning
 
-
-    for intent_data in intents:
+    # add examples and intents accordingly to X and Y training
+    for intent_data in intents: 
         intent = intent_data["intent"]
         examples = intent_data["examples"]
         X.extend(examples)
         y.extend([intent] * len(examples))
 
-
-    text_clf = Pipeline([
+    # vectorize and classify our intents
+    vect_and_class = Pipeline([ 
         ('vectorizer', CountVectorizer()),  # Convert text data to a bag-of-words representation
-        ('classifier', MultinomialNB())  # Multinomial Naive Bayes classifier
+        ('classifier', MultinomialNB())     # Naive Bayes classifier
     ])
 
-    text_clf.fit(X, y)
+    # fit the data in our pipeline
+    vect_and_class.fit(X, y)
 
-    predicted_intent = text_clf.predict([user_input])
-    print(f"Predicted intent: {predicted_intent[0]}")
+    # store the users intent according to the input they gave
+    predicted_intent = vect_and_class.predict([user_input])
+
+    # return the most likely / most confident, intent
+    return predicted_intent[0]
+
 
 
 def tokenize(inp : str)-> list[str]:
@@ -84,7 +108,12 @@ def padder(inp : list[str]) -> nltk.lm.models.Laplace :
     return lm
 
 def syntatic_aggregation(s1,s2):
+    """
+    Desc:
+        This is just going to be the basis for syntatic aggregation if i need to expand upon it
 
+    return: aggregated string via syntax
+    """
     subj1, verb1, obj1 = s1.split()
     subj2, verb2, obj2 = s2.split()
 
@@ -94,17 +123,60 @@ def syntatic_aggregation(s1,s2):
         return None
     
 
+def POS(user_input, tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LETTER AT START AND THEN CAN EXTRACT NNP FROM IT
+    """
+    Desc:
+        N/A
+    
+    return: N/A
+    
+    """
+
+    ## TEXT PRE PROCESSING STAGE
+    custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-"  # Have a string containing punctuation we want to remove from our text
+    # custom_punctuation.replace(".", "")                             # Remove the full stop in the custom punctuation (We need this to identify what and what isnt a sentence)
+
+    user_input = "".join([char for char in user_input if char not in custom_punctuation])
+    ##
+
+    tokenized_txt = word_tokenize(user_input.lower())
+
+    with open("../Datasets/first-names.txt") as file:
+
+        names = file.readlines()
+        names = [name.lower() for name in names]
+        names = [name.strip() for name in names]
+
+        print(names)
+
+        for token in tokenized_txt:
+            if token in names:
+                token = token.capitalize()
+                print(token)
+               
+
+    print(nltk.pos_tag(tokenized_txt))
+
 # Program loop
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
-while running :
-    user_input = input("Say something: ").lower()
 
-    if "stop" in user_input:
-        running = False
-    else :
-        print (f'You are searching for { user_input}')
-    intent(user_input)
+# while running :
 
-# Page 15 
+#     user_intent = intent(input("Say something: "))
+
+#     if user_intent == "stop":
+#         print(f"Goodbye {user_name}!")
+#         break
+#     else:
+#         print(user_intent)
+
+# Page 15
+
+
+POS("Hello my name is Brandon")
+
+## HELP DOCUMENTATION
+
+# https://www.nltk.org/book/ch05.html
+
+# https://www.newscatcherapi.com/blog/ultimate-guide-to-text-similarity-with-python#:~:text=Cosine%20Similarity%20computes%20the%20similarity,the%20cosine%20similarity%20is%201
