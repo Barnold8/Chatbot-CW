@@ -140,10 +140,21 @@ def sentiment(inp: str, low_bound = 0, high_bound = 1) -> int:
     sentiment_analyzer = SentimentIntensityAnalyzer()
     sentiment_attribute = sentiment_analyzer.polarity_scores(inp)
    
-    # print(f"Sentence analysis: \n\tSentence: {inp}\n\tAnalysis: {sentiment_attribute}")
+    print(f"Sentence analysis: \n\tSentence: {inp}\n\tAnalysis: {sentiment_attribute}")
 
-    # print(sentiment_attribute)
+    print(sentiment_attribute)
 
+    vals = [] # to store local values to check for duplicates
+
+    for elem in sentiment_attribute:
+
+        vals.append(sentiment_attribute[elem])
+
+    for elem in vals:
+        # method to detect unsure sentiment
+        if vals.count(elem) > 1:
+            return -2
+    
     analysis = max(sentiment_attribute, key=sentiment_attribute.get)
 
     return sentiments[analysis]
@@ -190,6 +201,13 @@ def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAP
     else:
         return tags
 
+
+def getName():
+    
+    attempts = 0 # track attemps
+    ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
+    pass
+
 # Program loop
 
 # print("\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D")
@@ -225,7 +243,7 @@ def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAP
 #                 print("Sorry, I couldn't quite catch your name.")
 
 
-print(sentiment("Maybe it would help if i had a fucking sentiment"))
+print(sentiment("YOURE STILL A CLEVER DUDE"))
 
 
 # Page 15
