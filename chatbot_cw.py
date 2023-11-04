@@ -138,24 +138,9 @@ def sentiment(inp: str, low_bound = 0, high_bound = 0) -> int:
     sentiment_attribute = sentiment_analyzer.polarity_scores(inp)
     compound = sentiment_attribute["compound"]
    
-    print(f"Sentence analysis: \n\tSentence: {inp}\n\tAnalysis: {sentiment_attribute}")
+    # print(f"Sentence analysis: \n\tSentence: {inp}\n\tAnalysis: {sentiment_attribute}")
 
-    print(sentiment_attribute)
-
-    # vals = [] # to store local values to check for duplicates
-
-    # for elem in sentiment_attribute:
-
-    #     vals.append(sentiment_attribute[elem])
-
-    # for elem in vals:
-    #     # method to detect unsure sentiment
-    #     if vals.count(elem) > 1:
-    #         return -2
-    
-    # analysis = max(sentiment_attribute, key=sentiment_attribute.get)
-
-    # return sentiments[analysis]
+    # print(sentiment_attribute)
 
     if compound > high_bound:
         return 1
