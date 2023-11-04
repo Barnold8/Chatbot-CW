@@ -132,32 +132,38 @@ def syntatic_aggregation(s1,s2):
         return None
 
 
-def sentiment(inp: str, low_bound = 0, high_bound = 1) -> int:
-
-
-    sentiments = {"pos":1,"neu":0,"neg":-1}
+def sentiment(inp: str, low_bound = 0, high_bound = 0) -> int:
 
     sentiment_analyzer = SentimentIntensityAnalyzer()
     sentiment_attribute = sentiment_analyzer.polarity_scores(inp)
+    compound = sentiment_attribute["compound"]
    
     print(f"Sentence analysis: \n\tSentence: {inp}\n\tAnalysis: {sentiment_attribute}")
 
     print(sentiment_attribute)
 
-    vals = [] # to store local values to check for duplicates
+    # vals = [] # to store local values to check for duplicates
 
-    for elem in sentiment_attribute:
+    # for elem in sentiment_attribute:
 
-        vals.append(sentiment_attribute[elem])
+    #     vals.append(sentiment_attribute[elem])
 
-    for elem in vals:
-        # method to detect unsure sentiment
-        if vals.count(elem) > 1:
-            return -2
+    # for elem in vals:
+    #     # method to detect unsure sentiment
+    #     if vals.count(elem) > 1:
+    #         return -2
     
-    analysis = max(sentiment_attribute, key=sentiment_attribute.get)
+    # analysis = max(sentiment_attribute, key=sentiment_attribute.get)
 
-    return sentiments[analysis]
+    # return sentiments[analysis]
+
+    if compound > high_bound:
+        return 1
+    elif compound < low_bound:
+        return -1
+    else:
+        return 0
+
 
 
 def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LETTER AT START AND THEN CAN EXTRACT NNP FROM IT
@@ -243,7 +249,7 @@ def getName():
 #                 print("Sorry, I couldn't quite catch your name.")
 
 
-print(sentiment("YOURE STILL A CLEVER DUDE"))
+
 
 
 # Page 15
