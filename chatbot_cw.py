@@ -11,9 +11,15 @@ from sklearn.pipeline import Pipeline
 from nltk.tokenize import PunktSentenceTokenizer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import *
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 ### PLAYLIST MANAGEMENT CHATBOT
 
+# NLTK DOWNLOADS
+
+nltk.download('vader_lexicon')
+
+# END OF NLTK DOWNLOADS
 
 # GLOBAL VARIABLE DECLARATION
 n_param = 3
@@ -21,6 +27,8 @@ debug = False
 running = True
 user_name = "Unknown user"
 lemmatizer = WordNetLemmatizer()
+
+already_asked = False
 # END OF GLOBAL VARIABLE DECLARATION
 
 
@@ -46,13 +54,14 @@ def intent(user_input: str):
 
         {"intent": "greeting", "examples": ["hi there!", "hello!", "hey"]},
         {"intent": "thanks", "examples": ["thank you!", "thanks a lot"]},
-        {"intent": "name","examples":["my name is","please call me","I want to be known as","I am"]},
+        {"intent": "name","examples":["my name is","please call me","I want to be known as","I am","Hello there, I am","Hey, I am"]},
         {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist?"]},
         {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
+        {"intent": "void","examples": ["nothing","nevermind", "i'm unsure", "i don't know"]}
 
     ]
 
-    X = [] # The X, input data/ features
+    X = [] # The X, input data / features
     y = [] # The Y, what we are learning
 
     # add examples and intents accordingly to X and Y training
@@ -121,7 +130,24 @@ def syntatic_aggregation(s1,s2):
         return f"{ subj1 } { verb1 } { obj1 } and { obj2 }."
     else:
         return None
-    
+
+
+def sentiment(inp: str, low_bound = 0, high_bound = 1) -> int:
+
+
+    sentiments = {"pos":1,"neu":0,"neg":-1}
+
+    sentiment_analyzer = SentimentIntensityAnalyzer()
+    sentiment_attribute = sentiment_analyzer.polarity_scores(inp)
+   
+    # print(f"Sentence analysis: \n\tSentence: {inp}\n\tAnalysis: {sentiment_attribute}")
+
+    # print(sentiment_attribute)
+
+    analysis = max(sentiment_attribute, key=sentiment_attribute.get)
+
+    return sentiments[analysis]
+
 
 def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LETTER AT START AND THEN CAN EXTRACT NNP FROM IT
     """
@@ -166,26 +192,48 @@ def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAP
 
 # Program loop
 
+# print("\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D")
 
 # while running :
 
-#     user_intent = intent(input("Say something: "))
+#     if already_asked:
+#         prompt = input("\nWhat else can I help you with?\n")
+#     else:
+#         already_asked = True
+#         prompt = input("\nWhat can I help you with?\n")
+
+
+#     user_intent = intent(prompt)
 
 #     if user_intent == "stop":
 #         print(f"Goodbye {user_name}!")
 #         break
 #     else:
-#         print(user_intent)
+#         print(f"Intent detected: {user_intent}")
+        
+#         if user_intent == "name":
+
+#             attempts = 0 # track attemps
+#             ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
+
+#             try:
+#                 user_name = POS(prompt,"NNP")[0][0]
+            
+#                 sentiment_input = input(f"So you are, {user_name}?" )
+
+#             except IndexError as name_error:
+#                 print("Sorry, I couldn't quite catch your name.")
+
+
+print(sentiment("Maybe it would help if i had a fucking sentiment"))
+
 
 # Page 15
-
-
-print(POS("Hello my name is Brandon","NNP"))
-
-
 
 ## HELP DOCUMENTATION
 
 # https://www.nltk.org/book/ch05.html
+
+# https://www.nltk.org/api/nltk.sentiment.vader.html
 
 # https://www.newscatcherapi.com/blog/ultimate-guide-to-text-similarity-with-python#:~:text=Cosine%20Similarity%20computes%20the%20similarity,the%20cosine%20similarity%20is%201
