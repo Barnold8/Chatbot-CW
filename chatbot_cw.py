@@ -9,7 +9,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from nltk.tokenize import PunktSentenceTokenizer
-
+from nltk.stem import WordNetLemmatizer
+from nltk.stem import *
 
 ### PLAYLIST MANAGEMENT CHATBOT
 
@@ -19,6 +20,7 @@ n_param = 3
 debug = False
 running = True
 user_name = "Unknown user"
+lemmatizer = WordNetLemmatizer()
 # END OF GLOBAL VARIABLE DECLARATION
 
 
@@ -75,8 +77,6 @@ def intent(user_input: str):
     # return the most likely / most confident, intent
     return predicted_intent[0]
 
-
-
 def tokenize(inp : str)-> list[str]:
     """
     Desc:
@@ -123,7 +123,7 @@ def syntatic_aggregation(s1,s2):
         return None
     
 
-def POS(user_input, tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LETTER AT START AND THEN CAN EXTRACT NNP FROM IT
+def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LETTER AT START AND THEN CAN EXTRACT NNP FROM IT
     """
     Desc:
         N/A
@@ -141,21 +141,28 @@ def POS(user_input, tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LET
 
     tokenized_txt = word_tokenize(user_input.lower())
 
-    with open("../Datasets/first-names.txt") as file:
+
+    # Data sourced from https://github.com/dominictarr/random-name/blob/master/first-names.txt
+    with open("Data/names.txt") as file:
 
         names = file.readlines()
         names = [name.lower() for name in names]
         names = [name.strip() for name in names]
 
-        print(names)
+        for i in range(len(tokenized_txt)):
+            if tokenized_txt[i] in names:
+                tokenized_txt[i] = tokenized_txt[i].capitalize()
 
-        for token in tokenized_txt:
-            if token in names:
-                token = token.capitalize()
-                print(token)
-               
+    tags = nltk.pos_tag(tokenized_txt)
 
-    print(nltk.pos_tag(tokenized_txt))
+    if grab_by_tag:
+        group = []
+        for tag in tags:
+            if tag[1] == grab_by_tag:
+                group.append(tag)
+        return group
+    else:
+        return tags
 
 # Program loop
 
@@ -173,7 +180,9 @@ def POS(user_input, tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LET
 # Page 15
 
 
-POS("Hello my name is Brandon")
+print(POS("Hello my name is Brandon","NNP"))
+
+
 
 ## HELP DOCUMENTATION
 
