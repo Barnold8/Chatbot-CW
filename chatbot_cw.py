@@ -31,7 +31,6 @@ lemmatizer = WordNetLemmatizer()
 already_asked = False
 # END OF GLOBAL VARIABLE DECLARATION
 
-
 def intent(user_input: str):
     """
     Desc:
@@ -52,13 +51,14 @@ def intent(user_input: str):
     # The intents to understand what the user is saying 
     intents = [ 
 
-        {"intent": "greeting", "examples": ["hi there!", "hello!", "hey"]},
-        {"intent": "thanks", "examples": ["thank you!", "thanks a lot"]},
-        {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","Hello there, I am","Hey, I am"]},
-        {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist?"]},
+        {"intent": "greeting", "examples": ["hi there", "hello", "hey"]},
+        {"intent": "thanks", "examples": ["thank you", "thanks a lot"]},
+        {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
+        {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
         {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
-        {"intent": "void","examples": ["nothing","nevermind", "i'm unsure", "i don't know"]},
-        {"intent": "help","examples": ["help","help me please","i require help","i need help"]}
+        {"intent": "void","examples": ["nothing","nevermind", "im unsure", "i don't know"]},
+        {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
+        {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]}
 
     ]
 
@@ -149,7 +149,7 @@ def sentiment(inp: str, low_bound = 0, high_bound = 0) -> int:
     else:
         return 0
 
-def POS(user_input, grab_by_tag = None): # Possible fix to singular name being seen as RB, train POS on set of names being NNP
+def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name being seen as RB, train POS on set of names being NNP
     """
     Desc:
         This function works by tokenizing an incoming string and then tagging each word using the pre-trained model
@@ -161,14 +161,19 @@ def POS(user_input, grab_by_tag = None): # Possible fix to singular name being s
     
     """
 
-    ## TEXT PRE PROCESSING STAGE
-    custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-"  # Have a string containing punctuation we want to remove from our text
-    # custom_punctuation.replace(".", "")                             # Remove the full stop in the custom punctuation (We need this to identify what and what isnt a sentence)
+    # ## TEXT PRE PROCESSING STAGE
+    # custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-"  # Have a string containing punctuation we want to remove from our text
+    # # custom_punctuation.replace(".", "")                             # Remove the full stop in the custom punctuation (We need this to identify what and what isnt a sentence)
 
-    user_input = "".join([char for char in user_input if char not in custom_punctuation])
-    ##
+    # user_input = "".join([char for char in user_input if char not in custom_punctuation])
+    # ##
 
-    tokenized_txt = word_tokenize(user_input.lower())
+    # tokenized_txt = word_tokenize(user_input.lower())
+
+    user_input = string_preprocess(user_input)
+
+    tokenized_txt = word_tokenize(user_input)
+
 
 
     # Data sourced from https://github.com/dominictarr/random-name/blob/master/first-names.txt
@@ -198,14 +203,15 @@ def getName(inp: str, attempts: int) -> None:
     ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
 
     intended_result = intent(inp)
+    print(intended_result)
 
-    if intended_result != "name":
+    if intended_result != "name_retrieval":
         intent_decider(intended_result, inp)
         return
 
     if attempts >= ALLOWED_ATTEMPS:
         print("I am sorry, I really struggled to catch your name, I do apologise.")
-        return "Unknown User" # keep consistency for user name
+        user_name = "Unknown User" # keep consistency for user name
     
     if len(inp.split(" ")) < 2:
         # A very bad bodge. But it works (singular words dont work well for identifying NNP for tags)
@@ -214,14 +220,24 @@ def getName(inp: str, attempts: int) -> None:
     try:
     
         user_name = POS(inp,"NNP")[0][0]
-        sentiment_input = sentiment(input(f"So, you would like me to refer to you as {user_name}?\n"))
+        user_input = input(f"So, you would like me to refer to you as {user_name}?\n")
+        intended_result = intent(user_input)
+
+        if intended_result != "yes_no": # Continue this to intercept the new intent of a user here 
+            print(f"WHATTTTT: {intended_result}")
+        
+        sentiment_input = sentiment(user_input)
 
         if sentiment_input <= 0:
+
+            print(sentiment_input)
             attempts += 1
             getName(input(f"What would you like me to call you?\n"),attempts)
+
         else: 
+
             print(f"Nice to meet you {user_name}")
-            return
+            return 
         
     except IndexError as name_error:
         print("Sorry, I couldn't quite catch your name. I am only limited to english names.")
@@ -237,54 +253,46 @@ def intent_decider(intent: string, inp: string) -> None:
             god awful set of if statements that help the code logically 
             do stuff after an intent is found
         return: None
-    
     """
-
     if intent == "name_retrieval":
-        user_name = getName()
+        user_name = getName(inp,0)
 
 
-
+def string_preprocess(inp: string) -> str:
+    """
+        Desc:
+            This function just does what it says on the tin. It is the preprocessing
+            step. In this we remove all punctuation from the strings to allow for 
+            consistency in our data 
+        return: string
+    """
+    custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-" 
+    inp = "".join([char for char in inp if char not in custom_punctuation])
+    return inp.lower()
 
 # Program loop
 
 # print("\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D")
 
-# while running :
+while running :
 
-#     if already_asked:
-#         prompt = input("\nWhat else can I help you with?\n")
-#     else:
-#         already_asked = True
-#         prompt = input("\nWhat can I help you with?\n")
+    if already_asked:
+        prompt = input("\nWhat else can I help you with?\n")
+    else:
+        already_asked = True
+        prompt = input("\nWhat can I help you with?\n")
 
 
-#     user_intent = intent(prompt)
+    user_intent = intent(prompt)
 
-#     if user_intent == "stop":
-#         print(f"Goodbye {user_name}!")
-#         break
-#     else:
-#         print(f"Intent detected: {user_intent}")
-        
-#         if user_intent == "name_retrieval":
-
-#             attempts = 0 # track attemps
-#             ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
-
-#             try:
-#                 user_name = POS(prompt,"NNP")[0][0]
-            
-#                 sentiment_input = input(f"So you are, {user_name}?" )
-
-#             except IndexError as name_error:
-#                 print("Sorry, I couldn't quite catch your name.")
+    if user_intent == "stop":
+        print(f"Goodbye {user_name}!")
+        break
+    else:
+        intent_decider(user_intent,prompt)
 
 
 
-getName(input("NAME TESTING STRING: "),0)
-
-# Page 15
 
 ## HELP DOCUMENTATION
 
