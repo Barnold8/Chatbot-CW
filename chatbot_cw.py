@@ -54,10 +54,11 @@ def intent(user_input: str):
 
         {"intent": "greeting", "examples": ["hi there!", "hello!", "hey"]},
         {"intent": "thanks", "examples": ["thank you!", "thanks a lot"]},
-        {"intent": "name","examples":["my name is","please call me","I want to be known as","I am","Hello there, I am","Hey, I am"]},
+        {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","Hello there, I am","Hey, I am"]},
         {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist?"]},
         {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
-        {"intent": "void","examples": ["nothing","nevermind", "i'm unsure", "i don't know"]}
+        {"intent": "void","examples": ["nothing","nevermind", "i'm unsure", "i don't know"]},
+        {"intent": "help","examples": ["help","help me please","i require help","i need help"]}
 
     ]
 
@@ -131,7 +132,6 @@ def syntatic_aggregation(s1,s2):
     else:
         return None
 
-
 def sentiment(inp: str, low_bound = 0, high_bound = 0) -> int:
 
     sentiment_analyzer = SentimentIntensityAnalyzer()
@@ -149,12 +149,13 @@ def sentiment(inp: str, low_bound = 0, high_bound = 0) -> int:
     else:
         return 0
 
-
-
-def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAPITAL LETTER AT START AND THEN CAN EXTRACT NNP FROM IT
+def POS(user_input, grab_by_tag = None): # Possible fix to singular name being seen as RB, train POS on set of names being NNP
     """
     Desc:
-        N/A
+        This function works by tokenizing an incoming string and then tagging each word using the pre-trained model
+        provided by NLTK. This function allows the developer to pick a tag to find within a string, so say they wanted NNP from
+        a string, they would then get a list of tuples where each tuple is of type NNP. The main purpose for POS thus far is 
+        to grab a name from a sentence. 
     
     return: N/A
     
@@ -192,12 +193,58 @@ def POS(user_input, grab_by_tag = None): # FIX THIS TO MAKE PERSON NAME HAVE CAP
     else:
         return tags
 
-
-def getName():
+def getName(inp: str, attempts: int) -> None:
     
-    attempts = 0 # track attemps
     ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
-    pass
+
+    intended_result = intent(inp)
+
+    if intended_result != "name":
+        intent_decider(intended_result, inp)
+        return
+
+    if attempts >= ALLOWED_ATTEMPS:
+        print("I am sorry, I really struggled to catch your name, I do apologise.")
+        return "Unknown User" # keep consistency for user name
+    
+    if len(inp.split(" ")) < 2:
+        # A very bad bodge. But it works (singular words dont work well for identifying NNP for tags)
+        inp = "please call me " + inp
+
+    try:
+    
+        user_name = POS(inp,"NNP")[0][0]
+        sentiment_input = sentiment(input(f"So, you would like me to refer to you as {user_name}?\n"))
+
+        if sentiment_input <= 0:
+            attempts += 1
+            getName(input(f"What would you like me to call you?\n"),attempts)
+        else: 
+            print(f"Nice to meet you {user_name}")
+            return
+        
+    except IndexError as name_error:
+        print("Sorry, I couldn't quite catch your name. I am only limited to english names.")
+        attempts += 1
+        getName(input(f"What would you like me to call you?\n"),attempts)
+
+
+
+def intent_decider(intent: string, inp: string) -> None:
+    """
+        Desc:
+            The purpose of this function is just to clean up code for the 
+            god awful set of if statements that help the code logically 
+            do stuff after an intent is found
+        return: None
+    
+    """
+
+    if intent == "name_retrieval":
+        user_name = getName()
+
+
+
 
 # Program loop
 
@@ -220,7 +267,7 @@ def getName():
 #     else:
 #         print(f"Intent detected: {user_intent}")
         
-#         if user_intent == "name":
+#         if user_intent == "name_retrieval":
 
 #             attempts = 0 # track attemps
 #             ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
@@ -235,7 +282,7 @@ def getName():
 
 
 
-
+getName(input("NAME TESTING STRING: "),0)
 
 # Page 15
 
