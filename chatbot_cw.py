@@ -27,6 +27,7 @@ debug = False
 running = True
 user_name = None
 lemmatizer = WordNetLemmatizer()
+hi_string = "\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D"
 
 already_asked = False
 # END OF GLOBAL VARIABLE DECLARATION
@@ -255,8 +256,19 @@ def intent_decider(intent: string, inp: string) -> None:
             do stuff after an intent is found
         return: None
     """
-    if intent == "name_retrieval":
-        user_name = getName(inp,0)
+
+    print(f"Here is the intent: {intent}")
+
+    if intent == "stop":
+        if user_name:
+            print(f"JAMSIE: Goodbye {user_name}!")
+        else:
+            print("JAMSIE: Goodbye!")
+        exit(0)
+
+    else:
+        if intent == "name_retrieval":
+            user_name = getName(inp,0)
 
 
 def string_preprocess(inp: string) -> str:
@@ -273,7 +285,8 @@ def string_preprocess(inp: string) -> str:
 
 # Program loop
 
-# print("\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D")
+print(hi_string)
+print("-"*len(hi_string))
 
 while running :
 
@@ -285,16 +298,7 @@ while running :
 
     user_intent = intent(prompt)
 
-    if user_intent == "stop":
-
-        if user_name:
-            print(f"JAMSIE: Goodbye {user_name}!")
-        else:
-            print("JAMSIE: Goodbye!")
-
-        break
-    else:
-        intent_decider(user_intent,prompt)
+    intent_decider(user_intent,prompt)
 
 
 
