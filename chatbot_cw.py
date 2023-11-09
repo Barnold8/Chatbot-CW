@@ -199,19 +199,19 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
         return tags
 
 def getName(inp: str, attempts: int) -> None:
+    global user_name
     
     ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
 
     intended_result = intent(inp)
-    print(intended_result)
 
     if intended_result != "name_retrieval":
         intent_decider(intended_result, inp)
-        return
+        return user_name
 
     if attempts >= ALLOWED_ATTEMPS:
         print("I am sorry, I really struggled to catch your name, I do apologise.")
-        user_name = "Unknown User" # keep consistency for user name
+        return user_name 
     
     if len(inp.split(" ")) < 2:
         # A very bad bodge. But it works (singular words dont work well for identifying NNP for tags)
@@ -219,12 +219,13 @@ def getName(inp: str, attempts: int) -> None:
 
     try:
     
-        user_name = POS(inp,"NNP")[0][0]
-        user_input = input(f"So, you would like me to refer to you as {user_name}?\n")
+        user_name_input = POS(inp,"NNP")[0][0]
+        user_input = input(f"So, you would like me to refer to you as {user_name_input}?\n")
         intended_result = intent(user_input)
 
         if intended_result != "yes_no": # Continue this to intercept the new intent of a user here 
-            print(f"WHATTTTT: {intended_result}")
+            intent_decider(intended_result, inp)
+            return user_name
         
         sentiment_input = sentiment(user_input)
 
@@ -235,9 +236,8 @@ def getName(inp: str, attempts: int) -> None:
             getName(input(f"What would you like me to call you?\n"),attempts)
 
         else: 
-
-            print(f"Nice to meet you {user_name}")
-            return 
+            print(f"Nice to meet you {user_name_input}")
+            return user_name_input
         
     except IndexError as name_error:
         print("Sorry, I couldn't quite catch your name. I am only limited to english names.")
@@ -247,6 +247,7 @@ def getName(inp: str, attempts: int) -> None:
 
 
 def intent_decider(intent: string, inp: string) -> None:
+    global user_name
     """
         Desc:
             The purpose of this function is just to clean up code for the 
@@ -281,7 +282,6 @@ while running :
     else:
         already_asked = True
         prompt = input("\nWhat can I help you with?\n")
-
 
     user_intent = intent(prompt)
 
