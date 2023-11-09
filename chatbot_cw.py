@@ -25,7 +25,7 @@ nltk.download('vader_lexicon')
 n_param = 3
 debug = False
 running = True
-user_name = "Unknown user"
+user_name = None
 lemmatizer = WordNetLemmatizer()
 
 already_asked = False
@@ -286,7 +286,12 @@ while running :
     user_intent = intent(prompt)
 
     if user_intent == "stop":
-        print(f"Goodbye {user_name}!")
+
+        if user_name:
+            print(f"JAMSIE: Goodbye {user_name}!")
+        else:
+            print("JAMSIE: Goodbye!")
+
         break
     else:
         intent_decider(user_intent,prompt)
