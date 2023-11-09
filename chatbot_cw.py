@@ -1,5 +1,6 @@
 import nltk , re , pprint , string
 import numpy as np
+from random import randint
 from nltk import word_tokenize , sent_tokenize
 from nltk . util import pad_sequence
 from nltk . lm import MLE , Laplace
@@ -12,12 +13,39 @@ from nltk.tokenize import PunktSentenceTokenizer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem import *
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import os
+import csv
 
 ### PLAYLIST MANAGEMENT CHATBOT
 
-# NLTK DOWNLOADS
+def cls() -> None:
+    """
+        Desc:
+            Clears console, multi platform using os.name
+        return: None
+    """
+    os.system('cls' if os.name=='nt' else 'clear')
 
+def parseCSV(file: str) -> list[tuple]:
+
+    with open("Data/COMP3074-CW1-Dataset.csv", "r", encoding="UTF-8") as file:
+
+        reader = csv.DictReader(file)
+        
+        qa = [] # questions and answers
+
+        for elem in reader:
+            qa.append((elem["Question"],elem["Answer"]))
+        
+        return qa
+
+
+# NLTK DOWNLOADS
+print("Just downloading some needed data. Please wait...")
 nltk.download('vader_lexicon')
+os.system("cls")    # Clear downloads output
 
 # END OF NLTK DOWNLOADS
 
@@ -28,11 +56,20 @@ running = True
 user_name = None
 lemmatizer = WordNetLemmatizer()
 hi_string = "\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D"
-
 already_asked = False
+qa_data = parseCSV("COMP3074-CW1-Dataset.csv") # this is use for the general question answering 
 # END OF GLOBAL VARIABLE DECLARATION
 
-def intent(user_input: str):
+def intent_help() -> None:
+    """
+        Desc:
+            This is just a wrapper function for printing help
+        return: None
+    """
+    
+    print("I can sure help! Here's a list of what I can do:\nNothing :( ")
+
+def intent(user_input: str) -> str:
     """
     Desc:
         This functions' is fairly complex for its use. I use the Naive Bayes classifier to help
@@ -52,14 +89,15 @@ def intent(user_input: str):
     # The intents to understand what the user is saying 
     intents = [ 
 
-        {"intent": "greeting", "examples": ["hi there", "hello", "hey"]},
-        {"intent": "thanks", "examples": ["thank you", "thanks a lot"]},
+        {"intent": "greeting", "examples": ["hi there", "hello", "hey","hello there","hi","howdy","greetings","salutations","good day","hey there"]},
+        {"intent": "thanks", "examples": ["thank you","thanks","i appreciate it","im grateful","im thankful","much obliged","i owe you one","that means a lot","im so grateful",]},
         {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
         {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
         {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
-        {"intent": "void","examples": ["nothing","nevermind", "im unsure", "i don't know"]},
+        {"intent": "void","examples": ['lets change the topic', 'nevermind', 'im neutral on the subject', 'i cant say for sure','im uncertain', 'i dont know', 'im not sure', 'i have nothing to add', 'i have no idea', 'its unclear to me']},
         {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
-        {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]}
+        {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]},
+        {"intent": "question","examples": ['i need some information', 'im curious about something', 'id like to inquire', 'im wondering about something', 'i have a query', 'im seeking clarification', 'i want to learn more', 'im interested in knowing', 'im looking for answers']}
 
     ]
 
@@ -245,8 +283,6 @@ def getName(inp: str, attempts: int) -> None:
         attempts += 1
         getName(input(f"What would you like me to call you?\n"),attempts)
 
-
-
 def intent_decider(intent: string, inp: string) -> None:
     global user_name
     """
@@ -257,7 +293,17 @@ def intent_decider(intent: string, inp: string) -> None:
         return: None
     """
 
-    print(f"Here is the intent: {intent}")
+
+    # {"intent": "greeting", "examples": ["hi there", "hello", "hey"]},
+    # {"intent": "thanks", "examples": ["thank you", "thanks a lot"]},
+    # {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
+    # {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
+    # {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
+    # {"intent": "void","examples": ["nothing","nevermind", "im unsure", "i don't know"]},
+    # {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
+    # {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]}
+
+    # print(f"Here is the intent: {intent}")
 
     if intent == "stop":
         if user_name:
@@ -267,9 +313,28 @@ def intent_decider(intent: string, inp: string) -> None:
         exit(0)
 
     else:
+        # why cant python have syntatically good switch case...
         if intent == "name_retrieval":
             user_name = getName(inp,0)
-
+        elif intent == "greeting":
+            greetings = ["Hello", "Hi", "Hey", "Howdy", "Greetings", "Salutations","Good day","Hey there"]
+            print(f"JAMSIE: {greetings[randint(0,len(greetings))]}")
+        elif intent == "thanks":
+            print("JAMSIE: Not a problem, glad to help! :D")
+        elif intent == "transaction":
+            print("transaction")
+        elif intent == "void":
+            print("void")
+        elif intent == "help":
+            intent_help()
+        elif intent == "question":
+            if user_name != None:
+                question = input(f"JAMSIE: What would you like to ask me {user_name}?")
+            else:
+                question = input(f"JAMSIE: What would you like to ask me?")
+            print(f"Answer: {questionAnswer(qa_data,question)}")
+        else:
+            print("JAMSIE: I am unsure what you are asking of me, sorry. :(")
 
 def string_preprocess(inp: string) -> str:
     """
@@ -282,6 +347,30 @@ def string_preprocess(inp: string) -> str:
     custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-" 
     inp = "".join([char for char in inp if char not in custom_punctuation])
     return inp.lower()
+
+def similirityMatching(data: list[str], inp: str):
+
+    vectorizer = TfidfVectorizer()
+
+    vectorized_strings = vectorizer.fit_transform(data)
+
+    vectorized_new_string = vectorizer.transform([inp])
+
+    # Calculate cosine similarity between the new string and all vectors in the array
+    cosine_similarities = cosine_similarity(vectorized_new_string, vectorized_strings)
+
+    # if sum(cosine_similarities) == 0: # Input is dissimilar to everything given
+    #     return None
+
+    # Print the cosine similarities
+
+    return np.argmax(cosine_similarities)
+
+def questionAnswer(qa_package: list[tuple],question: string):
+
+    questions = [x[0] for x in qa_package]
+
+    return qa_package[similirityMatching(questions,"Who is john wayne")][1]
 
 # Program loop
 
@@ -301,6 +390,9 @@ while running :
     intent_decider(user_intent,prompt)
 
 
+
+
+# simalirityMatching()
 
 
 ## HELP DOCUMENTATION
