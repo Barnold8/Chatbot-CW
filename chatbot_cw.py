@@ -71,10 +71,7 @@ lemmatizer = WordNetLemmatizer()
 hi_string = "\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D"
 already_asked = False
 qa_data = parseCSV("COMP3074-CW1-Dataset.csv") # this is use for the general question answering, load once for quicker processing
-intents = loadJSON("Data/intents.json")
-
-print(intents)
-
+intents = loadJSON("Data/intents.json") # this is a nice concise place to keep intents rather than hardcoding them in to the chatbot
 # END OF GLOBAL VARIABLE DECLARATION
 
 def intent_help() -> None:
@@ -83,19 +80,6 @@ def intent_help() -> None:
             This is just a wrapper function for printing help
         return: None
     """
-
-
-        # {"intent": "greeting", "examples": ["hi there", "hello", "hey","hello there","hi","howdy","greetings","salutations","good day","hey there"]},
-        # {"intent": "thanks", "examples": ["thank you","thanks","i appreciate it","im grateful","im thankful","much obliged","i owe you one","that means a lot","im so grateful",]},
-        # {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
-        # {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
-        # {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
-        # {"intent": "void","examples": ['lets change the topic', 'nevermind','i cant say for sure','im uncertain', 'i dont know', 'im not sure', 'i have nothing to add', 'i have no idea', 'its unclear to me']},
-        # {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
-        # {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]},
-        # {"intent": "question","examples": ['i need some information', 'im curious about something', 'id like to inquire', 'im wondering about something', 'i have a query', 'im seeking clarification', 'i want to learn more', 'im interested in knowing', 'im looking for answers','I have a question']}
-
-
     
     print("""JAMSIE:     I can sure help! Here's a list of what I can do:\n
             You can greet me, and I will greet you right back!\n
@@ -105,6 +89,11 @@ def intent_help() -> None:
             Since I possess extensive knowledge, I can answer a good majority of questions thanks to the dataset I was given, just say something like 'I want to ask a question' or 'I have an inquiry' and then ask your question!.            
             Last, but certainly not least, you can end our conversation. Like any other conversation, you just have to say a variation of bye. You can even say exit and our conversation will end.
           """)
+    
+    user_input = input("JAMSIE: Would you like to know more about anything? If so, say 'I would like to know more about' and then what it is you want know more about. Otherwise simply refuse.\nYOU: ")
+
+    print(f"INTENT:{intent(intents['help_intents'],user_input)}")
+   
 
 def intent(intents: list[dict], user_input: str) -> str:
     """
@@ -121,27 +110,6 @@ def intent(intents: list[dict], user_input: str) -> str:
     return: string that says what the intent was
 
     """
-    # May be a better idea to use a vector space model and then cosine similarity
-
-    # The intents to understand what the user is saying 
-    # intents = [ 
-
-    #     {"intent": "greeting", "examples": ["hi there", "hello", "hey","hello there","hi","howdy","greetings","salutations","good day","hey there"]},
-    #     {"intent": "thanks", "examples": ["thank you","thanks","i appreciate it","im grateful","im thankful","much obliged","i owe you one","that means a lot","im so grateful",]},
-    #     {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
-    #     {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
-    #     {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later","exit"]},
-    #     {"intent": "void","examples": ['lets change the topic', 'nevermind','i cant say for sure','im uncertain', 'i dont know', 'im not sure', 'i have nothing to add', 'i have no idea', 'its unclear to me']},
-    #     {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
-    #     {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]},
-    #     {"intent": "question","examples": ['i need some information', 'im curious about something', 'id like to inquire', 'im wondering about something', 'i have a query', 'im seeking clarification', 'i want to learn more', 'im interested in knowing', 'im looking for answers','I have a question']}
-
-    # ]
-
-    # Convert and write JSON object to file
-    with open("sample.json", "w") as outfile: 
-        json.dump(intents, outfile)
-
     X = [] # The X, input data / features
     y = [] # The Y, what we are learning
 
