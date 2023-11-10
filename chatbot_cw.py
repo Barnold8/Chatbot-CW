@@ -403,12 +403,6 @@ while running :
 
     intent_decider(user_intent,prompt)
 
-
-
-
-# simalirityMatching()
-
-
 ## HELP DOCUMENTATION
 
 # https://www.nltk.org/book/ch05.html
