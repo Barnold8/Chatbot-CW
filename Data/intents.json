@@ -114,26 +114,38 @@
         {
             "intent": "greeting",
             "examples": [
-                    "im interested in learning about greetings",
-                    "id like to know more about greetings",
-                    "could you provide information on greetings",
-                    "im curious about greetings and would like to learn",
-                    "can you tell me about different greetings",
-                    "im eager to understand greetings better",
-                    "id appreciate it if you could share information on greetings",
-                    "im looking to gain knowledge about greetings",
-                    "could you enlighten me on the topic of greetings",
-                    "i want to familiarize myself with various greetings",
-                    "can you give me insights into the world of greetings",
-                    "im hoping to explore the subject of greetings",
-                    "im keen on finding out more about greetings",
-                    "could you provide some information on the subject of greetings",
-                    "id like to get acquainted with different greetings",
-                    "can you shed some light on the topic of greetings",
-                    "im inquisitive about greetings and would like to know more",
-                    "can you share some knowledge about greetings",
-                    "im interested in gaining a better understanding of greetings"
-               
+
+
+            ]
+        },
+        {
+            "intent": "name_retrieval",
+            "examples": [
+
+            ]
+        },
+        {
+            "intent": "playlist",
+            "examples": [
+
+            ]
+        },
+        {
+            "intent": "stop",
+            "examples": [
+
+            ]
+        },
+        {
+            "intent": "question",
+            "examples": [
+
+            ]
+        },
+        {
+            "intent": "help",
+            "examples": [
+
             ]
         },
         {

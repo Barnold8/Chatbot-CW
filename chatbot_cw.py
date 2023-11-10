@@ -92,8 +92,29 @@ def intent_help() -> None:
     
     user_input = input("JAMSIE: Would you like to know more about anything? If so, say 'I would like to know more about' and then what it is you want know more about. Otherwise simply refuse.\nYOU: ")
 
-    print(f"INTENT:{intent(intents['help_intents'],user_input)}")
-   
+    help_intent = intent(intents['help_intents'],user_input)
+
+    if help_intent != "no":
+
+        asking = True
+        while asking:
+            # why cant python have syntatically good switch case...
+            if help_intent == "stop":
+                asking = False
+                print("Put info about stopping here")
+            elif help_intent == "name_retrieval":
+                asking = False
+            elif help_intent == "greeting":
+                asking = False
+            elif help_intent == "playlist":
+                asking = False
+            elif help_intent == "help":
+                asking = False
+            elif help_intent == "question":
+                asking = False
+            else:
+                print("JAMSIE: Im sorry, I didn't understand what you asked. Would you like to ask again?")
+                help_intent = intent(intents['help_intents'],user_input)
 
 def intent(intents: list[dict], user_input: str) -> str:
     """
@@ -186,10 +207,6 @@ def sentiment(inp: str, low_bound = 0, high_bound = 0) -> int:
     sentiment_attribute = sentiment_analyzer.polarity_scores(inp)
     compound = sentiment_attribute["compound"]
    
-    # print(f"Sentence analysis: \n\tSentence: {inp}\n\tAnalysis: {sentiment_attribute}")
-
-    # print(sentiment_attribute)
-
     if compound > high_bound:
         return 1
     elif compound < low_bound:
@@ -221,8 +238,6 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
     user_input = string_preprocess(user_input)
 
     tokenized_txt = word_tokenize(user_input)
-
-
 
     # Data sourced from https://github.com/dominictarr/random-name/blob/master/first-names.txt
     with open("Data/names.txt") as file:
