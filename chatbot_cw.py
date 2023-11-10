@@ -17,6 +17,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 import csv
+import json 
 
 ### PLAYLIST MANAGEMENT CHATBOT
 
@@ -41,6 +42,19 @@ def parseCSV(file: str) -> list[tuple]:
         
         return qa
 
+def loadJSON(file: str) -> dict:
+    general_intents = None
+    try:
+        with open("Data/intents.json","r") as file:
+            try:
+                general_intents = json.load(file)
+            except json.decoder.JSONDecodeError as JSONERR:
+                print(f"FATAL ERROR: Cannot read json file. Error information\n\t{JSONERR}")
+                exit(1)
+    except FileNotFoundError as error:
+        print(f"FATAL ERROR: Cannot load file. Error information\n\t{error}")
+        exit(1)
+    return general_intents
 
 # NLTK DOWNLOADS
 print("Just downloading some needed data. Please wait...")
@@ -51,13 +65,16 @@ os.system("cls")    # Clear downloads output
 
 # GLOBAL VARIABLE DECLARATION
 n_param = 3
-debug = False
 running = True
 user_name = None
 lemmatizer = WordNetLemmatizer()
 hi_string = "\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Experience.), how can I help today? P.S, if you ask for help, ill provide a list of my functionality! :D"
 already_asked = False
-qa_data = parseCSV("COMP3074-CW1-Dataset.csv") # this is use for the general question answering 
+qa_data = parseCSV("COMP3074-CW1-Dataset.csv") # this is use for the general question answering, load once for quicker processing
+intents = loadJSON("Data/intents.json")
+
+print(intents)
+
 # END OF GLOBAL VARIABLE DECLARATION
 
 def intent_help() -> None:
@@ -66,10 +83,30 @@ def intent_help() -> None:
             This is just a wrapper function for printing help
         return: None
     """
-    
-    print("I can sure help! Here's a list of what I can do:\nNothing :( ")
 
-def intent(user_input: str) -> str:
+
+        # {"intent": "greeting", "examples": ["hi there", "hello", "hey","hello there","hi","howdy","greetings","salutations","good day","hey there"]},
+        # {"intent": "thanks", "examples": ["thank you","thanks","i appreciate it","im grateful","im thankful","much obliged","i owe you one","that means a lot","im so grateful",]},
+        # {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
+        # {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
+        # {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
+        # {"intent": "void","examples": ['lets change the topic', 'nevermind','i cant say for sure','im uncertain', 'i dont know', 'im not sure', 'i have nothing to add', 'i have no idea', 'its unclear to me']},
+        # {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
+        # {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]},
+        # {"intent": "question","examples": ['i need some information', 'im curious about something', 'id like to inquire', 'im wondering about something', 'i have a query', 'im seeking clarification', 'i want to learn more', 'im interested in knowing', 'im looking for answers','I have a question']}
+
+
+    
+    print("""JAMSIE:     I can sure help! Here's a list of what I can do:\n
+            You can greet me, and I will greet you right back!\n
+            I can remember your name, simply say something along the lines of 'I want to be named' with your name\n
+            I can help you out with a playlist on your system, just mention your playlist in any form like 'I want to see the artists in my playlist' or 'I want the longest song in my playlist' for example\n
+            Just like right now, you can ask me for help, and I will display this very message!\n
+            Since I possess extensive knowledge, I can answer a good majority of questions thanks to the dataset I was given, just say something like 'I want to ask a question' or 'I have an inquiry' and then ask your question!.            
+            Last, but certainly not least, you can end our conversation. Like any other conversation, you just have to say a variation of bye. You can even say exit and our conversation will end.
+          """)
+
+def intent(intents: list[dict], user_input: str) -> str:
     """
     Desc:
         This functions' is fairly complex for its use. I use the Naive Bayes classifier to help
@@ -87,19 +124,23 @@ def intent(user_input: str) -> str:
     # May be a better idea to use a vector space model and then cosine similarity
 
     # The intents to understand what the user is saying 
-    intents = [ 
+    # intents = [ 
 
-        {"intent": "greeting", "examples": ["hi there", "hello", "hey","hello there","hi","howdy","greetings","salutations","good day","hey there"]},
-        {"intent": "thanks", "examples": ["thank you","thanks","i appreciate it","im grateful","im thankful","much obliged","i owe you one","that means a lot","im so grateful",]},
-        {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
-        {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
-        {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
-        {"intent": "void","examples": ['lets change the topic', 'nevermind', 'im neutral on the subject', 'i cant say for sure','im uncertain', 'i dont know', 'im not sure', 'i have nothing to add', 'i have no idea', 'its unclear to me']},
-        {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
-        {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]},
-        {"intent": "question","examples": ['i need some information', 'im curious about something', 'id like to inquire', 'im wondering about something', 'i have a query', 'im seeking clarification', 'i want to learn more', 'im interested in knowing', 'im looking for answers']}
+    #     {"intent": "greeting", "examples": ["hi there", "hello", "hey","hello there","hi","howdy","greetings","salutations","good day","hey there"]},
+    #     {"intent": "thanks", "examples": ["thank you","thanks","i appreciate it","im grateful","im thankful","much obliged","i owe you one","that means a lot","im so grateful",]},
+    #     {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
+    #     {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
+    #     {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later","exit"]},
+    #     {"intent": "void","examples": ['lets change the topic', 'nevermind','i cant say for sure','im uncertain', 'i dont know', 'im not sure', 'i have nothing to add', 'i have no idea', 'its unclear to me']},
+    #     {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
+    #     {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]},
+    #     {"intent": "question","examples": ['i need some information', 'im curious about something', 'id like to inquire', 'im wondering about something', 'i have a query', 'im seeking clarification', 'i want to learn more', 'im interested in knowing', 'im looking for answers','I have a question']}
 
-    ]
+    # ]
+
+    # Convert and write JSON object to file
+    with open("sample.json", "w") as outfile: 
+        json.dump(intents, outfile)
 
     X = [] # The X, input data / features
     y = [] # The Y, what we are learning
@@ -242,14 +283,14 @@ def getName(inp: str, attempts: int) -> None:
     
     ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
 
-    intended_result = intent(inp)
+    intended_result = intent(intents["general_intents"],inp)
 
     if intended_result != "name_retrieval":
         intent_decider(intended_result, inp)
         return user_name
 
     if attempts >= ALLOWED_ATTEMPS:
-        print("I am sorry, I really struggled to catch your name, I do apologise.")
+        print("JAMSIE: I am sorry, I really struggled to catch your name, I do apologise.")
         return user_name 
     
     if len(inp.split(" ")) < 2:
@@ -259,8 +300,8 @@ def getName(inp: str, attempts: int) -> None:
     try:
     
         user_name_input = POS(inp,"NNP")[0][0]
-        user_input = input(f"So, you would like me to refer to you as {user_name_input}?\n")
-        intended_result = intent(user_input)
+        user_input = input(f"JAMSIE: So, you would like me to refer to you as {user_name_input}?\nYOU: ")
+        intended_result = intent(intents["general_intents"],user_input)
 
         if intended_result != "yes_no": # Continue this to intercept the new intent of a user here 
             intent_decider(intended_result, inp)
@@ -272,16 +313,16 @@ def getName(inp: str, attempts: int) -> None:
 
             print(sentiment_input)
             attempts += 1
-            getName(input(f"What would you like me to call you?\n"),attempts)
+            getName(input(f"JAMSIE: What would you like me to call you?\nYOU: "),attempts)
 
         else: 
-            print(f"Nice to meet you {user_name_input}")
+            print(f"JAMSIE: Nice to meet you {user_name_input}")
             return user_name_input
         
     except IndexError as name_error:
         print("Sorry, I couldn't quite catch your name. I am only limited to english names.")
         attempts += 1
-        getName(input(f"What would you like me to call you?\n"),attempts)
+        getName(input(f"JAMSIE: What would you like me to call you?\nYOU: "),attempts)
 
 def intent_decider(intent: string, inp: string) -> None:
     global user_name
@@ -292,16 +333,6 @@ def intent_decider(intent: string, inp: string) -> None:
             do stuff after an intent is found
         return: None
     """
-
-
-    # {"intent": "greeting", "examples": ["hi there", "hello", "hey"]},
-    # {"intent": "thanks", "examples": ["thank you", "thanks a lot"]},
-    # {"intent": "name_retrieval","examples":["my name is","please call me","I want to be known as","I am","hello there, I am","hey, I am"]},
-    # {"intent": "transaction","examples": ["playlist","i want to edit my playlist","whats on my playlist"]},
-    # {"intent": "stop", "examples" : ["stop the application","stop listening","stop","Goodbye", "Bye", "See you later"]},
-    # {"intent": "void","examples": ["nothing","nevermind", "im unsure", "i don't know"]},
-    # {"intent": "help","examples": ["help","help me please","i require help","i need help"]},
-    # {"intent": "yes_no","examples":["i agree","yes please","yes","no","no thank you","i do not agree"]}
 
     # print(f"Here is the intent: {intent}")
 
@@ -324,15 +355,29 @@ def intent_decider(intent: string, inp: string) -> None:
         elif intent == "transaction":
             print("transaction")
         elif intent == "void":
-            print("void")
+            print("JAMSIE: No worries, take your time!")
         elif intent == "help":
             intent_help()
         elif intent == "question":
-            if user_name != None:
-                question = input(f"JAMSIE: What would you like to ask me {user_name}?")
-            else:
-                question = input(f"JAMSIE: What would you like to ask me?")
-            print(f"Answer: {questionAnswer(qa_data,question)}")
+            
+            sub_process = True
+
+            while sub_process:
+                    
+                if user_name != None:
+                    question = input(f"JAMSIE: What would you like to ask me {user_name}?\nYOU: ")
+                else:
+                    question = input(f"JAMSIE: What would you like to ask me?\nYOU: ")
+            
+                answer = questionAnswer(qa_data,question)
+                if answer == None:
+                    
+                    print("JAMSIE: Sorry, I couldn't understand your question.")
+
+                print(f"Answer: {answer}")
+                sub_process = False
+
+
         else:
             print("JAMSIE: I am unsure what you are asking of me, sorry. :(")
 
@@ -352,15 +397,14 @@ def similirityMatching(data: list[str], inp: str):
 
     vectorizer = TfidfVectorizer()
 
-    vectorized_strings = vectorizer.fit_transform(data)
+    vectorized_strings = vectorizer.fit_transform(data) # vectorize the questions
 
-    vectorized_new_string = vectorizer.transform([inp])
+    vectorized_new_string = vectorizer.transform([inp]) # vectorize the answers
 
-    # Calculate cosine similarity between the new string and all vectors in the array
     cosine_similarities = cosine_similarity(vectorized_new_string, vectorized_strings)
 
-    # if sum(cosine_similarities) == 0: # Input is dissimilar to everything given
-    #     return None
+    if np.sum(cosine_similarities) == 0: # Input is dissimilar to everything given
+        return None
 
     # Print the cosine similarities
 
@@ -370,7 +414,9 @@ def questionAnswer(qa_package: list[tuple],question: string):
 
     questions = [x[0] for x in qa_package]
 
-    return qa_package[similirityMatching(questions,"Who is john wayne")][1]
+    sim_index = similirityMatching(questions,question)
+
+    return qa_package[sim_index][1] if sim_index != None else None
 
 # Program loop
 
@@ -380,12 +426,12 @@ print("-"*len(hi_string))
 while running :
 
     if already_asked:
-        prompt = input("\nWhat else can I help you with?\n")
+        prompt = input("\nJAMSIE: What else can I help you with?\nYOU: ")
     else:
         already_asked = True
-        prompt = input("\nWhat can I help you with?\n")
+        prompt = input("\nJAMSIE: What can I help you with?\nYOU: ")
 
-    user_intent = intent(prompt)
+    user_intent = intent(intents["general_intents"],prompt)
 
     intent_decider(user_intent,prompt)
 
