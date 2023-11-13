@@ -1,3 +1,6 @@
+# TODO: Allow the user to ask "Do you know who I am?"
+# TODO: Small talk
+
 import os
 ## ENSURE USER HAS NEEDED LIBS BY TESTING IMPORTS
 
@@ -138,7 +141,7 @@ def intent_help() -> None:
                 print("JAMSIE: The purpose of this is to end our conversation. Don't worry, I will still be here for the next time you need me. :D")
                 asking = False
             elif help_intent == "name_retrieval":
-                print("JAMSIE: To help provide personalisation to this conversation, I can remember your name. All you have to do is tell me your name, and I will remember it.\nFor example, this is me telling you my name, 'I am JAMSIE'.")
+                print("JAMSIE: To help provide personalisation to this conversation, I can remember your name. All you have to do is tell me your name, and I will remember it.\nFor example, this is me telling you my name, 'I am JAMSIE'.\nI will also be able to say your name at key points. You can try 'What's my name?'")
                 asking = False
             elif help_intent == "greeting":
                 print("JAMSIE: I love a good greeting. So all you need to do is say hello to me in any way you want and I will greet you right on back! :D")
@@ -293,11 +296,6 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
 
     tokenized_txt = word_tokenize(user_input)
 
-    stop_words = set(stopwords.words('english'))
-
-    tokenized_txt = remove_stop_words(tokenized_txt)
-
-
     # Data sourced from https://github.com/dominictarr/random-name/blob/master/first-names.txt
     with open("Data/names.txt") as file:
 
@@ -327,6 +325,8 @@ def getName(inp: str, attempts: int) -> None:
 
     intended_result = intent(intents["general_intents"],inp)
 
+    inp = "".join(word + " " for word in remove_stop_words(word_tokenize(inp))).replace(" ","")
+   
     if intended_result != "name_retrieval":
         intent_decider(intended_result, inp)
         return user_name
@@ -344,7 +344,7 @@ def getName(inp: str, attempts: int) -> None:
         user_name_input = POS(inp,"NNP")[0][0]
         user_input = input(f"JAMSIE: So, you would like me to refer to you as {user_name_input}?\nYOU: ")
         intended_result = intent(intents["general_intents"],user_input)
-
+        
         if intended_result != "yes_no": # Continue this to intercept the new intent of a user here 
             intent_decider(intended_result, inp)
             return user_name
@@ -423,8 +423,6 @@ def intent_decider(intent: string, inp: string) -> None:
 
                 print(f"Answer: {answer}")
                 sub_process = False
-
-
         else:
             print("JAMSIE: I am unsure what you are asking of me, sorry. :(")
 
@@ -448,7 +446,7 @@ def similirityMatching(data: list[str], inp: str):
 
     vectorized_new_string = vectorizer.transform([inp]) # vectorize the answers
 
-    cosine_similarities = cosine_similarity(vectorized_new_string, vectorized_strings)
+    cosine_similarities = cosine_similarity(vectorized_new_string, vectorized_strings) # perform the cosine similarity between the two vectors given
 
     if np.sum(cosine_similarities) == 0: # Input is dissimilar to everything given
         return None
@@ -471,10 +469,10 @@ print("-"*len(hi_string))
 while running :
    
     if already_asked:
-        prompt = input("\nJAMSIE: What else can I help you with?\n\nYOU: ")
+        prompt = input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()
     else:
         already_asked = True
-        prompt = input("\nJAMSIE: What can I help you with?\n\nYOU: ")
+        prompt = input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()
 
     user_intent = intent(intents["general_intents"],prompt)
 

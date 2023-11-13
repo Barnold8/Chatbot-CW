@@ -37,7 +37,13 @@
                 "I want to be known as",
                 "I am",
                 "hello there, I am",
-                "hey, I am"
+                "hey, I am",
+                "do you know who i am?",
+                "do you know me",
+                "can you tell me my name",
+                "tell me my name",
+                "please tell me my name",
+                "please tell me who i am"
             ]
         },
         {
@@ -93,7 +99,11 @@
                 "yes",
                 "no",
                 "no thank you",
-                "i do not agree"
+                "i do not agree",
+                "nothing",
+                "nevermind",
+                "i forgot",
+                "sorry i forgot"
             ]
         },
         {
@@ -109,6 +119,21 @@
                 "im interested in knowing",
                 "im looking for answers",
                 "I have a question"
+            ]
+        },
+        {   "intent": "small_talk",
+            "examples": [
+                "nice weather we are having today",
+                "nice weather",
+                "hows the weather",
+                "the weather is nice",
+                "have you heard about",
+                "did you hear about",
+                "what do you think of",
+                "you did a great job on",
+                "what time is it",
+                "whats the time"
+
             ]
         }
     ],
@@ -193,5 +218,7 @@
                 "i do not agree"
             ]
         }
+    ],
+    "small_talk": [
     ]
 }
