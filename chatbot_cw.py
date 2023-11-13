@@ -76,6 +76,20 @@ qa_data = parseCSV("COMP3074-CW1-Dataset.csv") # this is use for the general que
 intents = loadJSON("Data/intents.json") # this is a nice concise place to keep intents rather than hardcoding them in to the chatbot
 # END OF GLOBAL VARIABLE DECLARATION
 
+
+def lemmatizeString(inp: str) -> str:
+    """
+        Desc:
+            This is just a wrapper function for some sort of unreadable code.
+            It will tokenize the string, and lemmatize each word in said string 
+            and then turn that back into a string. Not all strings
+            should be lemmatized
+
+        return: lemmatized string
+    """
+
+    return "".join([lemmatizer.lemmatize(word) + " " for word in word_tokenize(inp)])
+
 def intent_help() -> None:
     """
         Desc:
@@ -93,6 +107,8 @@ def intent_help() -> None:
           """)
     
     user_input = input("JAMSIE: Would you like to know more about anything? If so, ask more!. Otherwise simply refuse.\nYOU: ")
+
+    user_input = lemmatizeString(string_preprocess(user_input))
 
     help_intent = intent(intents['help_intents'],user_input)
 

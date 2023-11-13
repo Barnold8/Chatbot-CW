@@ -114,10 +114,10 @@
         {
             "intent": "greeting",
             "examples": [
-                "tell me more about greetings",
-                "greetings",
-                "i want to know more about greetings",
-                "greetings please"
+                "tell me more about greeting",
+                "greeting",
+                "i want to know more about greeting",
+                "greeting please"
             ]
         },
         {
@@ -135,25 +135,51 @@
         {
             "intent": "playlist",
             "examples": [
-
+                "tell me more about remembering my playlist",
+                "tell me more about playlist",
+                "tell me about playlist",
+                "i want to know about playlist",
+                "i want to know about editing my playlist",
+                "playist",
+                "i want to know more about my playlist",
+                "playlist please"
             ]
         },
         {
             "intent": "stop",
             "examples": [
-
+                "i want know about quitting the program",
+                "tell me about quitting the program",
+                "tell me about stopping the conversation",
+                "tell me about goodbye",
+                "i want to know about quitting the program",
+                "quitting the conversation",
+                "stopping",
+                "end conversation",
+                "stopping please",
+                "end please"
             ]
         },
         {
             "intent": "question",
             "examples": [
-
+                "i want to know about question and answering",
+                "i want to know about question",
+                "i want to know about what you know",
+                "tell me about what you know",
+                "question",
+                "tell me question",
+                "tell me about question"
             ]
         },
         {
             "intent": "help",
             "examples": [
-
+                "i want to know about help",
+                "i want to know about help",
+                "help",
+                "tell me help",
+                "tell me about help"
             ]
         },
         {
