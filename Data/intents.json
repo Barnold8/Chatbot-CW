@@ -114,14 +114,22 @@
         {
             "intent": "greeting",
             "examples": [
-
-
+                "tell me more about greetings",
+                "greetings",
+                "i want to know more about greetings",
+                "greetings please"
             ]
         },
         {
             "intent": "name_retrieval",
             "examples": [
-
+                "tell me more about remembering my name",
+                "tell me more about name",
+                "i want to know about getting my name",
+                "i want to know about remembering my name",
+                "name",
+                "i want to know more about my name",
+                "name please"
             ]
         },
         {

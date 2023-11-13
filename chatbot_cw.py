@@ -59,6 +59,8 @@ def loadJSON(file: str) -> dict:
 # NLTK DOWNLOADS
 print("Just downloading some needed data. Please wait...")
 nltk.download('vader_lexicon')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 os.system("cls")    # Clear downloads output
 
 # END OF NLTK DOWNLOADS
@@ -90,9 +92,11 @@ def intent_help() -> None:
             Last, but certainly not least, you can end our conversation. Like any other conversation, you just have to say a variation of bye. You can even say exit and our conversation will end.
           """)
     
-    user_input = input("JAMSIE: Would you like to know more about anything? If so, say 'I would like to know more about' and then what it is you want know more about. Otherwise simply refuse.\nYOU: ")
+    user_input = input("JAMSIE: Would you like to know more about anything? If so, ask more!. Otherwise simply refuse.\nYOU: ")
 
     help_intent = intent(intents['help_intents'],user_input)
+
+    print(f"HELP INTENT {help_intent}")
 
     if help_intent != "no":
 
