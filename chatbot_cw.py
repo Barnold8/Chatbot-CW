@@ -37,6 +37,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 import csv
 import json 
+from datetime import datetime
+
+
 
 ### PLAYLIST MANAGEMENT CHATBOT
 
@@ -94,8 +97,178 @@ hi_string = "\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Expe
 already_asked = False
 qa_data = parseCSV("COMP3074-CW1-Dataset.csv") # this is use for the general question answering, load once for quicker processing
 intents = loadJSON("Data/intents.json") # this is a nice concise place to keep intents rather than hardcoding them in to the chatbot
-# END OF GLOBAL VARIABLE DECLARATION
 
+# Got data from https://github.com/kootenpv/contractions/blob/master/contractions/data/contractions_dict.json
+contractions = {
+        "im": "i am",
+        "ima": "i am about to",
+        "imo": "i am going to",
+        "ive": "i have",
+        "ill": "i will",
+        "illve": "i will have",
+        "id": "i would",
+        "idve": "i would have",
+        "whatcha": "what are you",
+        "amnt": "am not",
+        "aint": "are not",
+        "arent": "are not",
+        "cause": "because",
+        "cant": "cannot",
+        "cantve": "cannot have",
+        "couldve": "could have",
+        "couldnt": "could not",
+        "couldntve": "could not have",
+        "darent": "dare not",
+        "daresnt": "dare not",
+        "dasnt": "dare not",
+        "didnt": "did not",
+        "dont": "do not",
+        "doesnt": "does not",
+        "eer": "ever",
+        "everyones": "everyone is",
+        "finna": "fixing to",
+        "gimme": "give me",
+        "gont": "go not",
+        "gonna": "going to",
+        "gotta": "got to",
+        "hadnt": "had not",
+        "hadntve": "had not have",
+        "hasnt": "has not",
+        "havent": "have not",
+        "heve": "he have",
+        "hes": "he is",
+        "hell": "he will",
+        "hellve": "he will have",
+        "hed": "he would",
+        "hedve": "he would have",
+        "heres": "here is",
+        "howre": "how are",
+        "howd": "how did",
+        "howdy": "how do you",
+        "hows": "how is",
+        "howll": "how will",
+        "isnt": "is not",
+        "its": "it is",
+        "tis": "it is",
+        "twas": "it was",
+        "itll": "it will",
+        "itllve": "it will have",
+        "itd": "it would",
+        "itdve": "it would have",
+        "kinda": "kind of",
+        "lets": "let us",
+        "luv": "love",
+        "maam": "madam",
+        "mayve": "may have",
+        "maynt": "may not",
+        "mightve": "might have",
+        "mightnt": "might not",
+        "mightntve": "might not have",
+        "mustve": "must have",
+        "mustnt": "must not",
+        "mustntve": "must not have",
+        "neednt": "need not",
+        "needntve": "need not have",
+        "neer": "never",
+        "o": "of",
+        "oclock": "of the clock",
+        "ol": "old",
+        "oughtnt": "ought not",
+        "oughtntve": "ought not have",
+        "oer": "over",
+        "shant": "shall not",
+        "shant": "shall not",
+        "shallnt": "shall not",
+        "shantve": "shall not have",
+        "shes": "she is",
+        "shell": "she will",
+        "shed": "she would",
+        "shedve": "she would have",
+        "shouldve": "should have",
+        "shouldnt": "should not",
+        "shouldntve": "should not have",
+        "sove": "so have",
+        "sos": "so is",
+        "somebodys": "somebody is",
+        "someones": "someone is",
+        "somethings": "something is",
+        "sux": "sucks",
+        "thatre": "that are",
+        "thats": "that is",
+        "thatll": "that will",
+        "thatd": "that would",
+        "thatdve": "that would have",
+        "em": "them",
+        "therere": "there are",
+        "theres": "there is",
+        "therell": "there will",
+        "thered": "there would",
+        "theredve": "there would have",
+        "thesere": "these are",
+        "theyre": "they are",
+        "theyve": "they have",
+        "theyll": "they will",
+        "theyllve": "they will have",
+        "theyd": "they would",
+        "theydve": "they would have",
+        "thiss": "this is",
+        "thisll": "this will",
+        "thisd": "this would",
+        "thosere": "those are",
+        "tove": "to have",
+        "wanna": "want to",
+        "wasnt": "was not",
+        "were": "we are",
+        "weve": "we have",
+        "well": "we will",
+        "wellve": "we will have",
+        "wed": "we would",
+        "wedve": "we would have",
+        "werent": "were not",
+        "whatre": "what are",
+        "whatd": "what did",
+        "whatve": "what have",
+        "whats": "what is",
+        "whatll": "what will",
+        "whatllve": "what will have",
+        "whenve": "when have",
+        "whens": "when is",
+        "wherere": "where are",
+        "whered": "where did",
+        "whereve": "where have",
+        "wheres": "where is",
+        "whichs": "which is",
+        "whore": "who are",
+        "whove": "who have",
+        "whos": "who is",
+        "wholl": "who will",
+        "whollve": "who will have",
+        "whod": "who would",
+        "whodve": "who would have",
+        "whyre": "why are",
+        "whyd": "why did",
+        "whyve": "why have",
+        "whys": "why is",
+        "willve": "will have",
+        "wont": "will not",
+        "wontve": "will not have",
+        "wouldve": "would have",
+        "wouldnt": "would not",
+        "wouldntve": "would not have",
+        "yall": "you all",
+        "yallre": "you all are",
+        "yallve": "you all have",
+        "yalld": "you all would",
+        "yalldve": "you all would have",
+        "youre": "you are",
+        "youve": "you have",
+        "youllve": "you shall have",
+        "youll": "you will",
+        "youd": "you would",
+        "youdve": "you would have",
+}
+
+# END OF GLOBAL VARIABLE DECLARATION
 
 def lemmatizeString(inp: str) -> str:
     """
@@ -296,6 +469,7 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
 
     tokenized_txt = word_tokenize(user_input)
 
+
     # Data sourced from https://github.com/dominictarr/random-name/blob/master/first-names.txt
     with open("Data/names.txt") as file:
 
@@ -308,6 +482,7 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
                 tokenized_txt[i] = tokenized_txt[i].capitalize()
 
     tags = nltk.pos_tag(tokenized_txt)
+    #print(f"Tags are {tags}")
 
     if grab_by_tag:
         group = []
@@ -318,6 +493,19 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
     else:
         return tags
 
+def nameProcessor(inp: str) -> None:
+    global user_name
+
+    if intent(intents["name_intents"],inp) == "get_name":
+        if user_name != None:
+            print(f"JAMSIE: You are {user_name}, how could I forget you?")
+        else:
+            print(f"JAMSIE: You havent told me your name. :(")
+    elif intent(intents["name_intents"],inp) == "set_name":
+        user_name = getName(inp,0)
+    else:
+        print("JAMSIE: Sorry, while determining what you meant with your name, I got rather confused.")
+   
 def getName(inp: str, attempts: int) -> None:
     global user_name
     
@@ -325,8 +513,18 @@ def getName(inp: str, attempts: int) -> None:
 
     intended_result = intent(intents["general_intents"],inp)
 
-    inp = "".join(word + " " for word in remove_stop_words(word_tokenize(inp))).replace(" ","")
-   
+    # Names are somtimes miscalculated as VBN or RB in this POS set. So im going to grab the first RB or VBN found and process it as if it was a name
+
+    try:
+        find_nnp = POS(inp,"NNP")[0][0]
+        if len(find_nnp) == 0:
+            inp = POS(inp,"VBN")[0][0]
+            if len(inp) == 0:
+                inp = POS(inp,"RB")[0][0]
+    except IndexError:
+        pass # this is here allow an exception. I do this because proper NNP sentences will trigger this, thus we dont need to care. 
+    
+    
     if intended_result != "name_retrieval":
         intent_decider(intended_result, inp)
         return user_name
@@ -371,6 +569,30 @@ def getName(inp: str, attempts: int) -> None:
         attempts += 1
         getName(input(f"JAMSIE: What would you like me to call you?\nYOU: "),attempts)
 
+def stp(inp: string) -> None: # could use NLG here if wanted/needed
+    """
+        Desc:
+            This function is the small talk processor. It will grab the small talk and intent match it 
+            to its corresponding intent dictionary. From this we can logically process the small talk conversation
+        
+        return: None
+    """
+    
+    stp_intent = intent(intents['small_talk'],inp)
+
+    if stp_intent == "weather":
+        print("JAMSIE: I don't know what the weather is like. My developer was too lazy to give me that functionality. :(")
+    elif stp_intent == "how":
+        print("JAMSIE: Since im a simple AI, I don't have emotions. But if I did, I would probably be very happy. :D")
+    elif stp_intent == "time":
+
+        now = datetime.now()
+        current_time = now.strftime("%H:%M")
+        if user_name != None:
+            print(f"JAMSIE: According to my virtual watch, it is {current_time} {user_name}!")
+        else:
+            print(f"JAMSIE: According to my virtual watch, it is {current_time}!")
+
 def intent_decider(intent: string, inp: string) -> None:
     global user_name
     """
@@ -380,9 +602,6 @@ def intent_decider(intent: string, inp: string) -> None:
             do stuff after an intent is found
         return: None
     """
-
-    # print(f"Here is the intent: {intent}")
-
     if intent == "stop":
         if user_name:
             print(f"JAMSIE: Goodbye {user_name}!")
@@ -393,7 +612,8 @@ def intent_decider(intent: string, inp: string) -> None:
     else:
         # why cant python have syntatically good switch case...
         if intent == "name_retrieval":
-            user_name = getName(inp,0)
+            nameProcessor(inp)
+            # user_name = getName(inp,0)
         elif intent == "greeting":
             greetings = ["Hello", "Hi", "Hey", "Howdy", "Greetings", "Salutations","Good day","Hey there"]
             print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}")
@@ -423,8 +643,24 @@ def intent_decider(intent: string, inp: string) -> None:
 
                 print(f"Answer: {answer}")
                 sub_process = False
+        elif intent == "small_talk":
+            stp(inp)
         else:
             print("JAMSIE: I am unsure what you are asking of me, sorry. :(")
+
+def con_exp(inp: str) -> str:
+    """
+        Desc: 
+            This function works by changing the contracted words into their expanded counterparts.
+            With thanks to the person who made the dictionary, the link to the data can be found
+            above the dictionary.
+        return: string
+    """
+
+    tokens = nltk.word_tokenize(inp)
+    expansions = [contractions.get(word, word) for word in tokens]
+    expanded_text = ' '.join(expansions)
+    return expanded_text
 
 def string_preprocess(inp: string) -> str:
     """
@@ -469,14 +705,17 @@ print("-"*len(hi_string))
 while running :
    
     if already_asked:
-        prompt = input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()
+        prompt = con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower())
     else:
         already_asked = True
-        prompt = input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()
+        prompt = con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower())
 
     user_intent = intent(intents["general_intents"],prompt)
 
     intent_decider(user_intent,prompt)
+
+
+
 
 
 ## HELP DOCUMENTATION
