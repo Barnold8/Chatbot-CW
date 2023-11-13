@@ -21,7 +21,7 @@ from nltk import word_tokenize , sent_tokenize
 from nltk . util import pad_sequence
 from nltk . lm import MLE , Laplace
 from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
-
+from nltk.corpus import stopwords
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -76,6 +76,7 @@ def loadJSON(file: str) -> dict:
 print("Just downloading some needed data. Please wait...")
 nltk.download('vader_lexicon')
 nltk.download('punkt')
+nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger')
 os.system("cls")    # Clear downloads output
 
@@ -128,25 +129,29 @@ def intent_help() -> None:
 
     help_intent = intent(intents['help_intents'],user_input)
 
-    print(f"HELP INTENT {help_intent}")
-
     if help_intent != "no":
-
+      
         asking = True
         while asking:
             # why cant python have syntatically good switch case...
             if help_intent == "stop":
+                print("JAMSIE: The purpose of this is to end our conversation. Don't worry, I will still be here for the next time you need me. :D")
                 asking = False
-                print("Put info about stopping here")
             elif help_intent == "name_retrieval":
+                print("JAMSIE: To help provide personalisation to this conversation, I can remember your name. All you have to do is tell me your name, and I will remember it.\nFor example, this is me telling you my name, 'I am JAMSIE'.")
                 asking = False
             elif help_intent == "greeting":
+                print("JAMSIE: I love a good greeting. So all you need to do is say hello to me in any way you want and I will greet you right on back! :D")
                 asking = False
             elif help_intent == "playlist":
+                # flesh this out more when i figure out what to actually do with this
+                print("JAMSIE: My main purpose is to help you with your playlist! We will keep a playlist together, in a relative directory to here. I can tell you information to your playlist, sort your playlist by certain factors like duration or song title. ")
                 asking = False
             elif help_intent == "help":
+                print("JAMSIE: Asking for help will just provide you with a simple description of each of my features. After this, you have the option to follow up asking more on any of the topics. This is actually how you got here, good job partner! :D")
                 asking = False
             elif help_intent == "question":
+                print("JAMSIE: I am absolutely brimming with knowledge. You can tell me that you wish to ask a question and I will start listening, after this you can ask your question and I will do my best to answer! :D")
                 asking = False
             else:
                 print("JAMSIE: Im sorry, I didn't understand what you asked. Would you like to ask again?")
@@ -250,6 +255,18 @@ def sentiment(inp: str, low_bound = 0, high_bound = 0) -> int:
     else:
         return 0
 
+def remove_stop_words(inp: list[str])-> list[str]:
+
+    stop_words = set(stopwords.words('english'))
+
+    tokenized_txt_stop = []
+
+    for word in inp:
+        if word not in stop_words:
+            tokenized_txt_stop.append(word)
+
+    return tokenized_txt_stop
+
 def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name being seen as RB, train POS on set of names being NNP
     """
     Desc:
@@ -272,8 +289,14 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
     # tokenized_txt = word_tokenize(user_input.lower())
 
     user_input = string_preprocess(user_input)
+    user_input = lemmatizeString(user_input)
 
     tokenized_txt = word_tokenize(user_input)
+
+    stop_words = set(stopwords.words('english'))
+
+    tokenized_txt = remove_stop_words(tokenized_txt)
+
 
     # Data sourced from https://github.com/dominictarr/random-name/blob/master/first-names.txt
     with open("Data/names.txt") as file:
@@ -330,9 +353,14 @@ def getName(inp: str, attempts: int) -> None:
 
         if sentiment_input <= 0:
 
-            print(sentiment_input)
             attempts += 1
-            getName(input(f"JAMSIE: What would you like me to call you?\nYOU: "),attempts)
+            user_input = input(f"JAMSIE: What would you like me to call you?\nYOU: ")
+
+            if len(user_input.split(" ")) < 2:
+                # A very bad bodge. But it works (singular words dont work well for identifying NNP for tags)
+                user_input = "please call me " + user_input
+
+            return getName(user_input,attempts)
 
         else: 
             print(f"JAMSIE: Nice to meet you {user_name_input}")
@@ -441,16 +469,17 @@ print(hi_string)
 print("-"*len(hi_string))
 
 while running :
-
+   
     if already_asked:
-        prompt = input("\nJAMSIE: What else can I help you with?\nYOU: ")
+        prompt = input("\nJAMSIE: What else can I help you with?\n\nYOU: ")
     else:
         already_asked = True
-        prompt = input("\nJAMSIE: What can I help you with?\nYOU: ")
+        prompt = input("\nJAMSIE: What can I help you with?\n\nYOU: ")
 
     user_intent = intent(intents["general_intents"],prompt)
 
     intent_decider(user_intent,prompt)
+
 
 ## HELP DOCUMENTATION
 
