@@ -1,11 +1,27 @@
-import nltk , re , pprint , string
-import numpy as np
+import os
+## ENSURE USER HAS NEEDED LIBS BY TESTING IMPORTS
+
+try:
+    import nltk , re , pprint , string
+except ImportError:
+    os.system("pip install nltk")
+try:
+    import numpy as np
+except ImportError:
+    os.system("pip install numpy")
+try:
+    from sklearn.feature_extraction.text import CountVectorizer
+except ImportError:
+    os.system("pip install scikit-learn")
+
+## END OF IMPORT ENSURANCE
+
 from random import randint
 from nltk import word_tokenize , sent_tokenize
 from nltk . util import pad_sequence
 from nltk . lm import MLE , Laplace
 from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
-from sklearn.feature_extraction.text import CountVectorizer
+
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -15,7 +31,7 @@ from nltk.stem import *
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import os
+
 import csv
 import json 
 
@@ -352,7 +368,7 @@ def intent_decider(intent: string, inp: string) -> None:
             user_name = getName(inp,0)
         elif intent == "greeting":
             greetings = ["Hello", "Hi", "Hey", "Howdy", "Greetings", "Salutations","Good day","Hey there"]
-            print(f"JAMSIE: {greetings[randint(0,len(greetings))]}")
+            print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}")
         elif intent == "thanks":
             print("JAMSIE: Not a problem, glad to help! :D")
         elif intent == "transaction":
@@ -408,8 +424,6 @@ def similirityMatching(data: list[str], inp: str):
 
     if np.sum(cosine_similarities) == 0: # Input is dissimilar to everything given
         return None
-
-    # Print the cosine similarities
 
     return np.argmax(cosine_similarities)
 
