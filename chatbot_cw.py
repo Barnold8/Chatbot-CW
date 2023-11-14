@@ -1,5 +1,4 @@
-# TODO: Allow the user to ask "Do you know who I am?"
-# TODO: Small talk
+# TODO: Transactions
 
 import os
 ## ENSURE USER HAS NEEDED LIBS BY TESTING IMPORTS
@@ -34,11 +33,23 @@ from nltk.stem import *
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from os import listdir
+from os.path import isfile, join
 
 import csv
 import json 
 from datetime import datetime
 
+
+class PlaylistManager:
+
+    def getSongs():
+        files = [file for file in listdir("Data/Playlist") if isfile(join("Data/Playlist", file))]
+        return [file for file in files if ".mp3" in file]
+
+    def sortSongs():
+        songs = PlaylistManager.getSongs()
+        os.mkdir("Data/temp")
 
 
 ### PLAYLIST MANAGEMENT CHATBOT
@@ -745,25 +756,25 @@ def questionAnswer(qa_package: list[tuple],question: string):
 
 # Program loop
 
-print(hi_string)
-print("-"*len(hi_string))
+# print(hi_string)
+# print("-"*len(hi_string))
 
-while running :
+# while running :
    
-    if already_asked:
-        prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
-    else:
-        already_asked = True
-        prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
+#     if already_asked:
+#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
+#     else:
+#         already_asked = True
+#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
 
-    user_intent = intent(intents["general_intents"],prompt)
+#     user_intent = intent(intents["general_intents"],prompt)
 
-    intent_decider(user_intent,prompt)
-
-
+#     intent_decider(user_intent,prompt)
 
 
 
+
+PlaylistManager.sortSongs()
 
 
 
