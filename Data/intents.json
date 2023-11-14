@@ -61,8 +61,9 @@
                 "stop listening",
                 "stop",
                 "goodbye",
-                "Bye",
-                "See you later",
+                "good bye",
+                "bye",
+                "see you later",
                 "exit"
             ]
         },
@@ -126,7 +127,6 @@
         {
             "intent": "small_talk",
             "examples": [
-                "nice weather we are having today",
                 "nice weather",
                 "how is the weather",
                 "the weather is nice",

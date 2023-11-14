@@ -267,6 +267,7 @@ contractions = {
         "youll": "you will",
         "youd": "you would",
         "youdve": "you would have",
+        "goodbye": "good bye"
 }
 
 # END OF GLOBAL VARIABLE DECLARATION
