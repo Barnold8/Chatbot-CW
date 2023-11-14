@@ -334,7 +334,7 @@ def intent_help() -> None:
                 print("JAMSIE: Im sorry, I didn't understand what you asked. Would you like to ask again?")
                 help_intent = intent(intents['help_intents'],user_input)
 
-def intent(intents: list[dict], user_input: str) -> str:
+def intent(intents: list[dict], user_input: str, thresh_ig = False) -> str:
     """
     Desc:
         This functions' is fairly complex for its use. I use the Naive Bayes classifier to help
@@ -349,6 +349,9 @@ def intent(intents: list[dict], user_input: str) -> str:
     return: string that says what the intent was
 
     """
+
+    THRESHOLD = 0.2
+
     X = [] # The X, input data / features
     y = [] # The Y, what we are learning
 
@@ -371,8 +374,16 @@ def intent(intents: list[dict], user_input: str) -> str:
     # store the users intent according to the input they gave
     predicted_intent = vect_and_class.predict([user_input])
 
+    probs = vect_and_class.predict_proba([user_input]) # probabilities
+
+    confidence =  probs.max() - probs.min()
+    
+    print(f"confidence of incoming intent {round(confidence,4)}")
     # return the most likely / most confident, intent
-    return predicted_intent[0]
+    if thresh_ig == True: # Used to bypass confidence threshold (for example in the getName function, it wil be 0.5 confident and then recursively call and be 0.02 confident, which isnt relevant to the processing of the name)
+        return predicted_intent[0]
+    else:
+        return predicted_intent[0] if confidence > THRESHOLD else None
 
 def tokenize(inp : str)-> list[str]:
     """
@@ -497,7 +508,7 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
 def nameProcessor(inp: str) -> None:
     global user_name
 
-    if intent(intents["name_intents"],inp) == "get_name":
+    if intent(intents["name_intents"],inp,True) == "get_name":
         if user_name != None:
             print(f"JAMSIE: You are {user_name}, how could I forget you?")
             if len(user_hobbies) > 0:
@@ -506,7 +517,7 @@ def nameProcessor(inp: str) -> None:
                     print("\t" + elem)
         else:
             print(f"JAMSIE: You havent told me your name. :(")
-    elif intent(intents["name_intents"],inp) == "set_name":
+    elif intent(intents["name_intents"],inp,True) == "set_name":
         user_name = getName(inp,0)
     else:
         print("JAMSIE: Sorry, while determining what you meant with your name, I got rather confused.")
@@ -516,7 +527,7 @@ def getName(inp: str, attempts: int) -> None:
     
     ALLOWED_ATTEMPS = 3 # this is a constant and must not be accessed
 
-    intended_result = intent(intents["general_intents"],inp)
+    intended_result = intent(intents["general_intents"],inp,True)
 
     # Names are somtimes miscalculated as VBN or RB in this POS set. So im going to grab the first RB or VBN found and process it as if it was a name
 
@@ -546,7 +557,7 @@ def getName(inp: str, attempts: int) -> None:
     
         user_name_input = POS(inp,"NNP")[0][0]
         user_input = input(f"JAMSIE: So, you would like me to refer to you as {user_name_input}?\nYOU: ")
-        intended_result = intent(intents["general_intents"],user_input)
+        intended_result = intent(intents["general_intents"],user_input,True)
         
         if intended_result != "yes_no": # Continue this to intercept the new intent of a user here 
             intent_decider(intended_result, inp)
@@ -674,7 +685,7 @@ def intent_decider(intent: string, inp: string) -> None:
                 if answer == None:
                     
                     print("JAMSIE: Sorry, I couldn't understand your question.")
-
+                    return
                 print(f"Answer: {answer}")
                 sub_process = False
         elif intent == "small_talk":
@@ -747,6 +758,10 @@ while running :
     user_intent = intent(intents["general_intents"],prompt)
 
     intent_decider(user_intent,prompt)
+
+
+
+
 
 
 

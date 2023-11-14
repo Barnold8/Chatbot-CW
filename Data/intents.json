@@ -32,19 +32,18 @@
         {
             "intent": "name_retrieval",
             "examples": [
-                "my name is",
+                "my name",
                 "please call me",
                 "i am",
-                "hello there, i am",
-                "hey i am",
+                "there, i am",
+                "i am",
                 "do you know who i am",
                 "do you know me",
                 "can you tell me my name",
                 "tell me my name",
                 "please tell me my name",
                 "please tell me who i am",
-                "i go by",
-                "what im called"
+                "i go by"
             ]
         },
         {
