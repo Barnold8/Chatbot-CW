@@ -97,6 +97,7 @@ hi_string = "\nHi, i'm JAMSIE (Just Awesome Music Selection and Interactive Expe
 already_asked = False
 qa_data = parseCSV("COMP3074-CW1-Dataset.csv") # this is use for the general question answering, load once for quicker processing
 intents = loadJSON("Data/intents.json") # this is a nice concise place to keep intents rather than hardcoding them in to the chatbot
+user_hobbies = []
 
 # Got data from https://github.com/kootenpv/contractions/blob/master/contractions/data/contractions_dict.json
 contractions = {
@@ -499,6 +500,10 @@ def nameProcessor(inp: str) -> None:
     if intent(intents["name_intents"],inp) == "get_name":
         if user_name != None:
             print(f"JAMSIE: You are {user_name}, how could I forget you?")
+            if len(user_hobbies) > 0:
+                print("JAMSIE: You told me the following about your hobbies:\n")
+                for elem in user_hobbies:
+                    print("\t" + elem)
         else:
             print(f"JAMSIE: You havent told me your name. :(")
     elif intent(intents["name_intents"],inp) == "set_name":
@@ -582,16 +587,45 @@ def stp(inp: string) -> None: # could use NLG here if wanted/needed
 
     if stp_intent == "weather":
         print("JAMSIE: I don't know what the weather is like. My developer was too lazy to give me that functionality. :(")
+    
     elif stp_intent == "how":
-        print("JAMSIE: Since im a simple AI, I don't have emotions. But if I did, I would probably be very happy. :D")
-    elif stp_intent == "time":
 
+        if user_name != None:
+            emotion = sentiment(input(f"JANMSIE: I'm very well thank you {user_name}, how are you?\nYOU: "))
+        else:
+            emotion = sentiment(input(f"JANMSIE: I'm very well thank you, how are you?\nYOU: "))
+        
+        if emotion == 1:
+            if user_name != None:
+                print(f"JAMSIE: That's good! Im glad to hear that {user_name}")
+            else:
+                print(f"JAMSIE: That's good! Im glad to hear that")
+        elif emotion == 0:
+            if user_name != None:
+                print(f"JAMSIE: I'm not sure how you are feeling {user_name}, im sorry")
+            else:
+                print("JAMSIE: I'm not sure how you are feeling, im sorry")
+        elif emotion == -1:
+            print(f"JAMSIE: I'm sorry to hear this. :(")
+    
+    elif stp_intent == "time":
         now = datetime.now()
         current_time = now.strftime("%H:%M")
         if user_name != None:
             print(f"JAMSIE: According to my virtual watch, it is {current_time} {user_name}!")
         else:
             print(f"JAMSIE: According to my virtual watch, it is {current_time}!")
+    elif stp_intent == "hobby":
+        if user_name != None:
+            user_hobby = input(f"JAMSIE: My hobbies include exploring Ethics in AI, programming, natural language processing, and chatbot development. I also have an interest in data science, machine learning, user experience design, and the intersection of linguistics and cognitive science.\n\tWhat are yours {user_name}?\nYOU:")
+        else:
+            user_hobby = input(f"JAMSIE: My hobbies include exploring Ethics in AI, programming, natural language processing, and chatbot development. I also have an interest in data science, machine learning, user experience design, and the intersection of linguistics and cognitive science.\n\tWhat are yours?\nYOU:")
+        user_hobbies.append(string_preprocess(user_hobby))
+    else:
+        if user_name != None:
+            print(f"JAMSIE: hmm, im not sure {user_name}")
+        else:
+            print("JAMSIE: hmm, im not sure") 
 
 def intent_decider(intent: string, inp: string) -> None:
     global user_name
@@ -705,10 +739,10 @@ print("-"*len(hi_string))
 while running :
    
     if already_asked:
-        prompt = con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower())
+        prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
     else:
         already_asked = True
-        prompt = con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower())
+        prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
 
     user_intent = intent(intents["general_intents"],prompt)
 

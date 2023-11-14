@@ -34,7 +34,6 @@
             "examples": [
                 "my name is",
                 "please call me",
-                "i want to be known as",
                 "i am",
                 "hello there, i am",
                 "hey i am",
@@ -246,6 +245,13 @@
                 "what is the time",
                 "can you tell me the time",
                 "i need to know the time"
+            ]
+        },{
+            "intent": "hobby",
+            "examples": [
+                "what are your hobbies",
+                "what is it you like to do",
+                "i want to know your hobbies"
             ]
         }
     ],
