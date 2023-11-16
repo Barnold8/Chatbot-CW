@@ -59,6 +59,8 @@ def loadJSON(file: str) -> dict:
 # NLTK DOWNLOADS
 print("Just downloading some needed data. Please wait...")
 nltk.download('vader_lexicon')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 os.system("cls")    # Clear downloads output
 
 # END OF NLTK DOWNLOADS
