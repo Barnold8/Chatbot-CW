@@ -780,13 +780,7 @@ while running :
 
     intent_decider(user_intent,prompt)
 
-
-
-
 # PlaylistManager.sortSongs()
-
-
-
 
 ## HELP DOCUMENTATION
 
