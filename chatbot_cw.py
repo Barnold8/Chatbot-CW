@@ -293,7 +293,6 @@ def lemmatizeString(inp: str) -> str:
 
         return: lemmatized string
     """
-
     return "".join([lemmatizer.lemmatize(word) + " " for word in word_tokenize(inp)])
 
 def intent_help() -> None:
