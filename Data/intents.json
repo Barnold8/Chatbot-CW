@@ -21,23 +21,30 @@
                 "thank you",
                 "thanks",
                 "i appreciate it",
-                "im grateful",
-                "im thankful",
+                "i am grateful",
+                "i am thankful",
                 "much obliged",
                 "i owe you one",
                 "that means a lot",
-                "im so grateful"
+                "i am so grateful"
             ]
         },
         {
             "intent": "name_retrieval",
             "examples": [
-                "my name is",
+                "my name",
                 "please call me",
-                "I want to be known as",
-                "I am",
-                "hello there, I am",
-                "hey, I am"
+                "i am",
+                "there, i am",
+                "i am",
+                "do you know who i am",
+                "do you know me",
+                "can you tell me my name",
+                "tell me my name",
+                "please tell me my name",
+                "please tell me who i am",
+                "i go by",
+                "what is my name"
             ]
         },
         {
@@ -45,7 +52,7 @@
             "examples": [
                 "playlist",
                 "i want to edit my playlist",
-                "whats on my playlist"
+                "what is on my playlist"
             ]
         },
         {
@@ -54,24 +61,25 @@
                 "stop the application",
                 "stop listening",
                 "stop",
-                "Goodbye",
-                "Bye",
-                "See you later",
+                "goodbye",
+                "good bye",
+                "bye",
+                "see you later",
                 "exit"
             ]
         },
         {
             "intent": "void",
             "examples": [
-                "lets change the topic",
+                "let us change the topic",
                 "nevermind",
-                "i cant say for sure",
-                "im uncertain",
-                "i dont know",
-                "im not sure",
+                "i can not say for sure",
+                "i am uncertain",
+                "i do not know",
+                "i am not sure",
                 "i have nothing to add",
                 "i have no idea",
-                "its unclear to me"
+                "it is unclear to me"
             ]
         },
         {
@@ -80,7 +88,9 @@
                 "help",
                 "help me please",
                 "i require help",
-                "i need help"
+                "i need help",
+                "tell me about what you can do",
+                "i want to know what you can do"
             ]
         },
         {
@@ -91,22 +101,42 @@
                 "yes",
                 "no",
                 "no thank you",
-                "i do not agree"
+                "i do not agree",
+                "nothing",
+                "nevermind",
+                "i forgot",
+                "sorry i forgot",
+                "yeah",
+                "yeah of course"
             ]
         },
         {
             "intent": "question",
             "examples": [
                 "i need some information",
-                "im curious about something",
-                "id like to inquire",
-                "im wondering about something",
+                "i am curious about something",
+                "i would like to inquire",
+                "i am wondering about something",
                 "i have a query",
-                "im seeking clarification",
+                "i am seeking clarification",
                 "i want to learn more",
-                "im interested in knowing",
-                "im looking for answers",
-                "I have a question"
+                "i am interested in knowing",
+                "i am looking for answers",
+                "i have a question"
+            ]
+        },
+        {
+            "intent": "small_talk",
+            "examples": [
+                "nice weather",
+                "how is the weather",
+                "the weather is nice",
+                "have you heard about",
+                "did you hear about",
+                "what do you think of",
+                "you did a great job on",
+                "what time is it",
+                "what is the time"
             ]
         }
     ],
@@ -114,38 +144,73 @@
         {
             "intent": "greeting",
             "examples": [
-
-
+                "tell me more about greeting",
+                "i want to know about your greetings",
+                "greeting",
+                "i want to know more about greeting",
+                "greeting please"
             ]
         },
         {
             "intent": "name_retrieval",
             "examples": [
-
+                "tell me more about remembering my name",
+                "tell me more about name",
+                "i want to know about getting my name",
+                "i want to know about remembering my name",
+                "name",
+                "i want to know more about my name",
+                "name please"
             ]
         },
         {
             "intent": "playlist",
             "examples": [
-
+                "tell me more about remembering my playlist",
+                "tell me more about playlist",
+                "tell me about playlist",
+                "i want to know about playlist",
+                "i want to know about editing my playlist",
+                "playist",
+                "i want to know more about my playlist",
+                "playlist please"
             ]
         },
         {
             "intent": "stop",
             "examples": [
-
+                "i want know about quitting the program",
+                "tell me about quitting the program",
+                "tell me about stopping the conversation",
+                "tell me about goodbye",
+                "i want to know about quitting the program",
+                "quitting the conversation",
+                "stopping",
+                "end conversation",
+                "stopping please",
+                "end please"
             ]
         },
         {
             "intent": "question",
             "examples": [
-
+                "i want to know about question and answering",
+                "i want to know about question",
+                "i want to know about what you know",
+                "tell me about what you know",
+                "question",
+                "tell me question",
+                "tell me about question"
             ]
         },
         {
             "intent": "help",
             "examples": [
-
+                "i want to know about help",
+                "i want to know about help",
+                "help",
+                "tell me help",
+                "tell me about help"
             ]
         },
         {
@@ -154,6 +219,65 @@
                 "no",
                 "no thank you",
                 "i do not agree"
+            ]
+        }
+    ],
+    "small_talk": [
+        {
+            "intent": "weather",
+            "examples": [
+                "how is the weather",
+                "what is the weather like",
+                "tell me about the weather"
+            ]
+        },{
+            "intent": "how",
+            "examples": [
+                "how are you",
+                "how are you feeling",
+                "how are you today",
+                "what is up"
+            ]
+        },{
+            "intent" : "time",
+            "examples":[
+                "do you know the time",
+                "what is the time",
+                "can you tell me the time",
+                "i need to know the time"
+            ]
+        },{
+            "intent": "hobby",
+            "examples": [
+                "what are your hobbies",
+                "what is it you like to do",
+                "i want to know your hobbies"
+            ]
+        }
+    ],
+    "name_intents": [
+        {
+            "intent": "set_name",
+            "examples": [
+                "my name is",
+                "please call me",
+                "i want to be known as",
+                "i am",
+                "hello there, i am",
+                "hey i am"
+            ]
+        },
+        {
+            "intent": "get_name",
+            "examples": [
+                "do you know who i am",
+                "do you know me",
+                "can you tell me my name",
+                "tell me my name",
+                "please tell me my name",
+                "please tell me who i am",
+                "i go by",
+                "what is my name"
             ]
         }
     ]
