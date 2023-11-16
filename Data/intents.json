@@ -43,7 +43,8 @@
                 "tell me my name",
                 "please tell me my name",
                 "please tell me who i am",
-                "i go by"
+                "i go by",
+                "what is my name"
             ]
         },
         {
@@ -275,7 +276,8 @@
                 "tell me my name",
                 "please tell me my name",
                 "please tell me who i am",
-                "i go by"
+                "i go by",
+                "what is my name"
             ]
         }
     ]

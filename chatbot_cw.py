@@ -390,7 +390,7 @@ def intent(intents: list[dict], user_input: str, thresh_ig = False) -> str:
 
     confidence =  probs.max() - probs.min()
     
-    print(f"confidence of incoming intent {round(confidence,4)}")
+    # print(f"confidence of incoming intent {round(confidence,4)}")
     # return the most likely / most confident, intent
     if thresh_ig == True: # Used to bypass confidence threshold (for example in the getName function, it wil be 0.5 confident and then recursively call and be 0.02 confident, which isnt relevant to the processing of the name)
         return predicted_intent[0]
@@ -673,7 +673,16 @@ def intent_decider(intent: string, inp: string) -> None:
             # user_name = getName(inp,0)
         elif intent == "greeting":
             greetings = ["Hello", "Hi", "Hey", "Howdy", "Greetings", "Salutations","Good day","Hey there"]
-            print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}")
+            print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}. ")
+            if user_name == None:
+
+                name = string_preprocess(input(f" Oh no!, I don't know your name, what is your name?")).lower()
+                
+                if len(name.split(" ")) < 2:
+                    name = "i am " + name 
+
+                user_name = nameProcessor(name)
+
         elif intent == "thanks":
             print("JAMSIE: Not a problem, glad to help! :D")
         elif intent == "transaction":
@@ -756,25 +765,25 @@ def questionAnswer(qa_package: list[tuple],question: string):
 
 # Program loop
 
-# print(hi_string)
-# print("-"*len(hi_string))
+print(hi_string)
+print("-"*len(hi_string))
 
-# while running :
+while running :
    
-#     if already_asked:
-#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
-#     else:
-#         already_asked = True
-#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
+    if already_asked:
+        prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
+    else:
+        already_asked = True
+        prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
 
-#     user_intent = intent(intents["general_intents"],prompt)
+    user_intent = intent(intents["general_intents"],prompt)
 
-#     intent_decider(user_intent,prompt)
-
-
+    intent_decider(user_intent,prompt)
 
 
-PlaylistManager.sortSongs()
+
+
+# PlaylistManager.sortSongs()
 
 
 
