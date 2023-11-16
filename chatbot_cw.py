@@ -676,7 +676,7 @@ def intent_decider(intent: string, inp: string) -> None:
             print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}. ")
             if user_name == None:
 
-                name = string_preprocess(input(f" Oh no!, I don't know your name, what is your name?")).lower()
+                name = string_preprocess(input(f"JAMSIE: Oh no!, I don't know your name, what is your name?\nYOU: ")).lower()
                 
                 if len(name.split(" ")) < 2:
                     name = "i am " + name 
