@@ -835,23 +835,9 @@ def questionAnswer(qa_package: list[tuple],question: string):
 
 # Program loop
 
+def getPlaylistAction(inp: str) -> str:
 
-def transaction(inp:str)-> None:
-
-    
-    transactionState = True
-    
-    context = { # use this to keep context of current events
-        "playlist_name":None,
-        "playlist_maximum_duration":None,
-        "playlist_minimum_duration": None,
-        "playlist_minimum_song_time": None,
-        "playlist_maximum_song_time": None,
-        "playlist_action": None,
-        "playlist_edit_category" : None
-    }
-
-    playlist_actions = {
+    playlist_actions = { # define a set of words to their embeddings
         "create":"create",
         "manufacture":"create",
         "fabricate": "create",
@@ -870,12 +856,54 @@ def transaction(inp:str)-> None:
 
     # To figure out if the user wants to do an action yet or not 
     actions = POS(inp,"VB")
-    print(f"Actions: {actions}, len(actions): {len(actions)}")
-    action_mode = None if len(actions) != 1 else actions[0][0]
-
-    if action_mode == None:
+    
+    action_mode = [] if len(actions) != 1 else actions[0][0]
+    
+    if len(action_mode) == 0:
         for action in actions:
-            print(playlist_actions[action[0]])
+            action_mode.append(playlist_actions[action[0]])
+            
+    
+    if len(action_mode) != 0 and type(action_mode) != str:
+        
+        options = [word for word in action_mode]
+
+        choice = string_preprocess(input(f"JAMSIE: which of these did you mean to say if any? {', '.join(options)}\nYOU: ")).split(" ")
+        attempts = 3
+
+        while choice not in options:
+            if attempts <= 0:
+                print("JAMSIE: I am dreadfully sorry, I couldn't quite understand you. Not to worry! We will come back to this later on :D")
+                break
+            choice = string_preprocess(input(f"JAMSIE: I'm sorry, I didn't quite catch that, which of these did you mean to say, if any? {' '.join(options)}\nYOU: "))
+            
+            attempts -= 1
+
+        return action_mode
+
+def transaction(inp:str)-> None:
+    
+    # TODO: 
+    #   make sure that things that are needed are gathered from input, if they cant be gathered, get them clarified in the while loop
+    #   say if somebody wants something specific, but more info is needed, clarify that within the while loop
+    #   all relevant context is stored within the context dictionary
+    #   check the POS of the input string to gather more information, like verbs for actions, types of nouns for possible playlist titles
+    #   for the playlist name, you could find a noun and then check for adjacent nouns previous and forward to generate a playlist
+
+
+    transactionState = True
+    
+    context = { # use this to keep context of current events
+        "playlist_name":None,
+        "playlist_maximum_duration":None,
+        "playlist_minimum_duration": None,
+        "playlist_minimum_song_time": None,
+        "playlist_maximum_song_time": None,
+        "playlist_action": None,
+        "playlist_edit_category" : None
+    }
+
+    context["playlist_action"] = getPlaylistAction(inp)
 
     while transactionState:
 
