@@ -862,25 +862,35 @@ def getPlaylistAction(inp: str) -> str:
     if len(action_mode) == 0:
         for action in actions:
             action_mode.append(playlist_actions[action[0]])
-            
-    
-    if len(action_mode) != 0 and type(action_mode) != str:
-        
+
         options = [word for word in action_mode]
 
         choice = string_preprocess(input(f"JAMSIE: which of these did you mean to say if any? {', '.join(options)}\nYOU: ")).split(" ")
+    
+        for word in choice:
+            if word in options:
+                action_mode = word
+
+
         attempts = 3
 
-        while choice not in options:
+        while choice not in options and type(action_mode) != str:
+            
             if attempts <= 0:
                 print("JAMSIE: I am dreadfully sorry, I couldn't quite understand you. Not to worry! We will come back to this later on :D")
-                break
-            choice = string_preprocess(input(f"JAMSIE: I'm sorry, I didn't quite catch that, which of these did you mean to say, if any? {' '.join(options)}\nYOU: "))
+                return None
+            choice = string_preprocess(input(f"JAMSIE: I'm sorry, I didn't quite catch that, which of these did you mean to say, if any? {' '.join(options)}\nYOU: ")).split(" ")
+            
+            for word in choice:
+                if word in options:
+                    action_mode = word
             
             attempts -= 1
 
-        return action_mode
-
+        return action_mode    
+    
+    
+    
 def transaction(inp:str)-> None:
     
     # TODO: 
@@ -889,6 +899,7 @@ def transaction(inp:str)-> None:
     #   all relevant context is stored within the context dictionary
     #   check the POS of the input string to gather more information, like verbs for actions, types of nouns for possible playlist titles
     #   for the playlist name, you could find a noun and then check for adjacent nouns previous and forward to generate a playlist
+    #   fix the getting verb part, the user cant say "create sorry" because its checking for direct strings
 
 
     transactionState = True
@@ -906,8 +917,7 @@ def transaction(inp:str)-> None:
     context["playlist_action"] = getPlaylistAction(inp)
 
     while transactionState:
-
-        print(inp)
+        
         transactionState = False
     
     
