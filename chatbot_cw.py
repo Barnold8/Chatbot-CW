@@ -280,7 +280,6 @@ contractions = {
         "youdve": "you would have",
         "goodbye": "good bye"
 }
-
 # END OF GLOBAL VARIABLE DECLARATION
 
 def lemmatizeString(inp: str) -> str:
@@ -677,9 +676,9 @@ def intent_decider(intent: string, inp: string) -> None:
             # user_name = getName(inp,0)
         elif intent == "greeting":
             greetings = ["Hello", "Hi", "Hey", "Howdy", "Greetings", "Salutations","Good day","Hey there"]
-            print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}. ")
+            
             if user_name == None:
-
+                print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}. ")
                 name = string_preprocess(input(f" Oh no!, I don't know your name, what is your name?\nYOU: ")).lower()
                 
                 if len(name.split(" ")) < 2:
