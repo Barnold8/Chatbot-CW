@@ -317,33 +317,37 @@ def intent_help() -> None:
 
     help_intent = intent(intents['help_intents'],user_input)
 
-    if help_intent != "no":
-      
-        asking = True
-        while asking:
-            # why cant python have syntatically good switch case...
-            if help_intent == "stop":
-                print("JAMSIE: The purpose of this is to end our conversation. Don't worry, I will still be here for the next time you need me. :D")
-                asking = False
-            elif help_intent == "name_retrieval":
-                print("JAMSIE: To help provide personalisation to this conversation, I can remember your name. All you have to do is tell me your name, and I will remember it.\nFor example, this is me telling you my name, 'I am JAMSIE'.\nI will also be able to say your name at key points. You can try 'What's my name?'")
-                asking = False
-            elif help_intent == "greeting":
-                print("JAMSIE: I love a good greeting. So all you need to do is say hello to me in any way you want and I will greet you right on back! :D")
-                asking = False
-            elif help_intent == "playlist":
-                # flesh this out more when i figure out what to actually do with this
-                print("JAMSIE: My main purpose is to help you with your playlist! We will keep a playlist together, in a relative directory to here. I can tell you information to your playlist, sort your playlist by certain factors like duration or song title. ")
-                asking = False
-            elif help_intent == "help":
-                print("JAMSIE: Asking for help will just provide you with a simple description of each of my features. After this, you have the option to follow up asking more on any of the topics. This is actually how you got here, good job partner! :D")
-                asking = False
-            elif help_intent == "question":
-                print("JAMSIE: I am absolutely brimming with knowledge. You can tell me that you wish to ask a question and I will start listening, after this you can ask your question and I will do my best to answer! :D")
-                asking = False
-            else:
-                print("JAMSIE: Im sorry, I didn't understand what you asked. Would you like to ask again?")
-                help_intent = intent(intents['help_intents'],user_input)
+
+    asking = True
+    while asking:
+        # why cant python have syntatically good switch case...
+        if help_intent == "stop":
+            print("JAMSIE: The purpose of this is to end our conversation. Don't worry, I will still be here for the next time you need me. :D")
+            asking = False
+        elif help_intent == "name_retrieval":
+            print("JAMSIE: To help provide personalisation to this conversation, I can remember your name. All you have to do is tell me your name, and I will remember it.\nFor example, this is me telling you my name, 'I am JAMSIE'.\nI will also be able to say your name at key points. You can try 'What's my name?'")
+            asking = False
+        elif help_intent == "greeting":
+            print("JAMSIE: I love a good greeting. So all you need to do is say hello to me in any way you want and I will greet you right on back! :D")
+            asking = False
+        elif help_intent == "playlist":
+            # flesh this out more when i figure out what to actually do with this
+            print("JAMSIE: My main purpose is to help you with your playlist! We will keep a playlist together, in a relative directory to here. I can tell you information to your playlist, sort your playlist by certain factors like duration or song title. ")
+            asking = False
+        elif help_intent == "help":
+            print("JAMSIE: Asking for help will just provide you with a simple description of each of my features. After this, you have the option to follow up asking more on any of the topics. This is actually how you got here, good job partner! :D")
+            asking = False
+        elif help_intent == "question":
+            print("JAMSIE: I am absolutely brimming with knowledge. You can tell me that you wish to ask a question and I will start listening, after this you can ask your question and I will do my best to answer! :D")
+            asking = False
+        elif help_intent == "no":
+            print("JAMSIE: No worries! Remember, if you ever need help, just ask :D")
+            asking = False
+        else:
+            print("JAMSIE: Im sorry, I didn't understand what you asked. Would you like to ask again?")
+            
+            # help_intent = intent(intents['help_intents'],user_input)
+                
 
 def intent(intents: list[dict], user_input: str, thresh_ig = False) -> str:
     """
@@ -518,7 +522,7 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
 
 def nameProcessor(inp: str) -> None:
     global user_name
-
+    
     if intent(intents["name_intents"],inp,True) == "get_name":
         if user_name != None:
             print(f"JAMSIE: You are {user_name}, how could I forget you?")
@@ -529,7 +533,8 @@ def nameProcessor(inp: str) -> None:
         else:
             print(f"JAMSIE: You havent told me your name. :(")
     elif intent(intents["name_intents"],inp,True) == "set_name":
-        user_name = getName(inp,0)
+        return getName(inp,0)
+        
     else:
         print("JAMSIE: Sorry, while determining what you meant with your name, I got rather confused.")
    
@@ -675,12 +680,13 @@ def intent_decider(intent: string, inp: string) -> None:
             print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}. ")
             if user_name == None:
 
-                name = string_preprocess(input(f" Oh no!, I don't know your name, what is your name?")).lower()
+                name = string_preprocess(input(f" Oh no!, I don't know your name, what is your name?\nYOU: ")).lower()
                 
                 if len(name.split(" ")) < 2:
                     name = "i am " + name 
-
                 user_name = nameProcessor(name)
+            else:
+                print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]} {user_name}. ")
 
         elif intent == "thanks":
             print("JAMSIE: Not a problem, glad to help! :D")
@@ -702,12 +708,14 @@ def intent_decider(intent: string, inp: string) -> None:
                     question = input(f"JAMSIE: What would you like to ask me?\nYOU: ")
             
                 answer = questionAnswer(qa_data,question)
+
                 if answer == None:
                     
                     print("JAMSIE: Sorry, I couldn't understand your question.")
-                    return
+                    
                 print(f"Answer: {answer}")
                 sub_process = False
+
         elif intent == "small_talk":
             stp(inp)
         else:

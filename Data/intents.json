@@ -218,7 +218,11 @@
             "examples": [
                 "no",
                 "no thank you",
-                "i do not agree"
+                "i do not agree",
+                "nothing",
+                "nevermind",
+                "its nothing",
+                "dont worry its nothing"
             ]
         }
     ],
@@ -260,11 +264,15 @@
             "intent": "set_name",
             "examples": [
                 "my name is",
+                "name is",
+                "my name",
                 "please call me",
                 "i want to be known as",
                 "i am",
                 "hello there, i am",
-                "hey i am"
+                "hey i am",
+                "its",
+                "it is"
             ]
         },
         {
