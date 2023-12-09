@@ -63,7 +63,7 @@ except ImportError:
 class PlaylistManager:
     
     TEMP_PATH = "Data/temp"
-    PLAYLIST_PATH = "Data/Playlist"
+    SONGS_PATH = "Data/Songs"
 
     def getSongs(PATH : str) -> list[str]:
         """
@@ -82,20 +82,25 @@ class PlaylistManager:
         """
         rmtree(PlaylistManager.TEMP_PATH)
 
-    def stageSongs():
+    def stageSongs(genres: list[str]):
         """
             Desc:
                 Copies all songs from Data/Playlist directory and puts them into a temporary directory.
             return: None
         """
-        songs = PlaylistManager.getSongs(PlaylistManager.PLAYLIST_PATH)
+
+        songs = []
+
+        for genre in genres:
+            for song in PlaylistManager.getSongs(PlaylistManager.SONGS_PATH + f"/{genre}"):
+                songs.append(song)
     
         if os.path.isdir(PlaylistManager.TEMP_PATH):
             PlaylistManager.destageSongs()
         os.mkdir(PlaylistManager.TEMP_PATH)
 
         for file in songs:
-            copyfile(PlaylistManager.PLAYLIST_PATH + "/" + os.path.basename(file), os.path.join(PlaylistManager.TEMP_PATH,os.path.basename(file)))
+            copyfile(PlaylistManager.SONGS_PATH + "/" + os.path.basename(file), os.path.join(PlaylistManager.TEMP_PATH,os.path.basename(file)))
 
     def listFiles(PATH : str) -> None:
         """
@@ -109,15 +114,13 @@ class PlaylistManager:
             time_sig = f"%02d" % (song_time_m) + ":" + f"%02d" % (song_time_s)
             print(f"Song: {file.split('.')[0]} | Song length: {time_sig}")
 
-    def destageSortedSongs():
+    def destageSortedSongs(PATH: str):
 
-        for song in os.listdir(PlaylistManager.PLAYLIST_PATH+"/"):
-            if ".mp3" in song:
-                os.remove(os.path.join(PlaylistManager.PLAYLIST_PATH+"/",song))
+        os.mkdir(PATH)
 
         for song in os.listdir(PlaylistManager.TEMP_PATH+"/"):
             if ".mp3" in song:
-                copyfile(PlaylistManager.TEMP_PATH + "/" + os.path.basename(song), os.path.join(PlaylistManager.PLAYLIST_PATH,os.path.basename(song)))
+                copyfile(PlaylistManager.TEMP_PATH + "/" + os.path.basename(song), os.path.join(PATH,os.path.basename(song)))
         
         PlaylistManager.destageSongs()
     
@@ -127,17 +130,7 @@ class PlaylistManager:
             
 PlaylistManager.stageSongs()
 
-PlaylistManager.listFiles(PlaylistManager.PLAYLIST_PATH)
 
-print("="*16)
-
-PlaylistManager.sortSongs(True,PlaylistManager.PLAYLIST_PATH)
-
-PlaylistManager.destageSortedSongs()
-
-PlaylistManager.sortSongs(True,PlaylistManager.PLAYLIST_PATH)
-
-print("="*16)
 
 ### PLAYLIST MANAGEMENT CHATBOT
 
