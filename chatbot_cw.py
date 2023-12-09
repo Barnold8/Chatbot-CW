@@ -1,6 +1,11 @@
 # TODO: Transactions
 
+# NOTE: All songs gathered from https://freemusicarchive.org, check "credits.txt" for more
+
 import os
+import csv
+import json 
+
 ## ENSURE USER HAS NEEDED LIBS BY TESTING IMPORTS
 
 try:
@@ -35,21 +40,92 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from os import listdir
 from os.path import isfile, join
-
-import csv
-import json 
 from datetime import datetime
-
+from sys import platform
+from shutil import copyfile, rmtree
 
 class PlaylistManager:
+    
+    TEMP_PATH = "Data/temp"
+    PLAYLIST_PATH = "Data/Playlist"
 
-    def getSongs():
-        files = [file for file in listdir("Data/Playlist") if isfile(join("Data/Playlist", file))]
+    def getSongs(PATH : str) -> list[str]:
+        """
+            Desc:
+                Gets files given path passed into PATH param, assumes correct path
+            return: List of file names
+        """
+        files = [file for file in listdir(f"{PATH}") if isfile(join(f"{PATH}", file))]
         return [file for file in files if ".mp3" in file]
 
-    def sortSongs():
-        songs = PlaylistManager.getSongs()
-        os.mkdir("Data/temp")
+    def destageSongs():
+        """
+            Desc:
+                Removes the Data/temp directory
+            return: None
+        """
+        rmtree(PlaylistManager.TEMP_PATH)
+
+    def stageSongs():
+        """
+            Desc:
+                Copies all songs from Data/Playlist directory and puts them into a temporary directory.
+            return: None
+        """
+        songs = PlaylistManager.getSongs(PlaylistManager.PLAYLIST_PATH)
+    
+        if os.path.isdir(PlaylistManager.TEMP_PATH):
+            PlaylistManager.destageSongs()
+        os.mkdir(PlaylistManager.TEMP_PATH)
+
+        for file in songs:
+            copyfile(PlaylistManager.PLAYLIST_PATH + "/" + os.path.basename(file), os.path.join(PlaylistManager.TEMP_PATH,os.path.basename(file)))
+
+    def listFiles(PATH : str) -> None:
+        """
+            Desc:
+                prints all the songs within a certain file directory
+            return: None
+        """
+        for file in PlaylistManager.getSongs(PATH):
+            print(f"Song: {file.split('.')[0]}")  
+
+    def destageSortedSongs():
+
+        for song in os.listdir(PlaylistManager.PLAYLIST_PATH+"/"):
+            if ".mp3" in song:
+                os.remove(os.path.join(PlaylistManager.PLAYLIST_PATH+"/",song))
+
+        for song in os.listdir(PlaylistManager.TEMP_PATH+"/"):
+            if ".mp3" in song:
+                copyfile(PlaylistManager.TEMP_PATH + "/" + os.path.basename(song), os.path.join(PlaylistManager.PLAYLIST_PATH,os.path.basename(song)))
+        
+        PlaylistManager.destageSongs()
+    
+    def sortSongs(rev: bool,PATH) -> list[str]:
+        return sorted(PlaylistManager.getSongs(PATH),reverse=rev)
+
+            
+PlaylistManager.stageSongs()
+
+PlaylistManager.listFiles(PlaylistManager.PLAYLIST_PATH)
+
+print("="*16)
+
+PlaylistManager.sortSongs(True,PlaylistManager.PLAYLIST_PATH)
+
+PlaylistManager.destageSortedSongs()
+
+PlaylistManager.sortSongs(True,PlaylistManager.PLAYLIST_PATH)
+
+print("="*16)
+
+
+
+
+
+
+       
 
 
 ### PLAYLIST MANAGEMENT CHATBOT
@@ -95,7 +171,7 @@ nltk.download('vader_lexicon')
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger')
-os.system("cls")    # Clear downloads output
+# cls()    # Clear downloads output
 
 # END OF NLTK DOWNLOADS
 
@@ -771,25 +847,25 @@ def questionAnswer(qa_package: list[tuple],question: string):
 
 # Program loop
 
-print(hi_string)
-print("-"*len(hi_string))
+# print(hi_string)
+# print("-"*len(hi_string))
 
-while running :
+# while running :
    
-    if already_asked:
-        prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
-    else:
-        already_asked = True
-        prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
+#     if already_asked:
+#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
+#     else:
+#         already_asked = True
+#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
 
-    user_intent = intent(intents["general_intents"],prompt)
+#     user_intent = intent(intents["general_intents"],prompt)
 
-    intent_decider(user_intent,prompt)
-
-
+#     intent_decider(user_intent,prompt)
 
 
-# PlaylistManager.sortSongs()
+
+
+
 
 
 
