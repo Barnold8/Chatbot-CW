@@ -31,20 +31,18 @@ try:
     from sys import platform
     from shutil import copyfile, rmtree
     from sklearn.feature_extraction.text import CountVectorizer
-except ImportError:
-
-    decider = None
-    os.system("pip install nltk")
-    os.system("pip install scikit-learn")
-    os.system("pip install numpy")
-try:
     import numpy as np
 except ImportError:
 
+    decider = input(f"The following libraries are needed for this program to work {None}, saying 'n' will stop the program from running, saying 'y' will install these libraries").lower()
+    if decider == "y":
+        os.system("pip install nltk")
+        os.system("pip install scikit-learn")
+        os.system("pip install numpy")
+    else:
+        exit()
 
 ## END OF IMPORT ENSURANCE
-
-
 
 class PlaylistManager:
     
