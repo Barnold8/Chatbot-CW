@@ -9,6 +9,7 @@ import json
 ## ENSURE USER HAS NEEDED LIBS BY TESTING IMPORTS
 
 try:
+    import numpy as np
     import nltk , re , pprint , string
     from random import randint
     from nltk import word_tokenize , sent_tokenize
@@ -31,14 +32,29 @@ try:
     from sys import platform
     from shutil import copyfile, rmtree
     from sklearn.feature_extraction.text import CountVectorizer
-    import numpy as np
+    from mutagen.mp3 import MP3
 except ImportError:
 
-    decider = input(f"The following libraries are needed for this program to work {None}, saying 'n' will stop the program from running, saying 'y' will install these libraries").lower()
+    libs = """
+                NLTK - Natural language processing tools
+                scikit-learn - Classifers and machine learning approaches
+                numpy - mathematics library used in multiple areas of data science
+                mutagen - handle audio metadata
+
+            """
+
+    decider = input(f"The following libraries are needed for this program to work {libs}saying 'n' will stop the program from running, saying 'y' will install these libraries\n\n\t    Do you wish to install this software? y/n? ").lower()
     if decider == "y":
+        print("Installing nltk...")
         os.system("pip install nltk")
+        print("Installing scikit-learn...")
         os.system("pip install scikit-learn")
+        print("Installing numpy...")
         os.system("pip install numpy")
+        print("Installing mutagen...")
+        os.system("pip install mutagen")
+        print("Done!")
+        os.system('cls' if os.name=='nt' else 'clear')
     else:
         exit()
 
@@ -88,7 +104,10 @@ class PlaylistManager:
             return: None
         """
         for file in PlaylistManager.getSongs(PATH):
-            print(f"Song: {file.split('.')[0]}")  
+            song = MP3(os.path.join(PATH+'/',file))
+            song_time_m, song_time_s = divmod(song.info.length, 60) 
+            time_sig = f"%02d" % (song_time_m) + ":" + f"%02d" % (song_time_s)
+            print(f"Song: {file.split('.')[0]} | Song length: {time_sig}")
 
     def destageSortedSongs():
 
@@ -102,9 +121,9 @@ class PlaylistManager:
         
         PlaylistManager.destageSongs()
     
-    def sortSongs(rev: bool,PATH) -> list[str]:
+    def sortSongs(rev: bool,PATH: str) -> list[str]:
+        """"""
         return sorted(PlaylistManager.getSongs(PATH),reverse=rev)
-
             
 PlaylistManager.stageSongs()
 
@@ -164,7 +183,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('wordnet')
-cls()   # Clear downloads output
+# cls()   # Clear downloads output
 
 # END OF NLTK DOWNLOADS
 
@@ -842,20 +861,20 @@ def questionAnswer(qa_package: list[tuple],question: string):
 
 # Program loop
 
-print(hi_string)
-print("-"*len(hi_string))
+# print(hi_string)
+# print("-"*len(hi_string))
 
-while running :
+# while running :
    
-    if already_asked:
-        prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
-    else:
-        already_asked = True
-        prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
+#     if already_asked:
+#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
+#     else:
+#         already_asked = True
+#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
 
-    user_intent = intent(intents["general_intents"],prompt)
+#     user_intent = intent(intents["general_intents"],prompt)
 
-    intent_decider(user_intent,prompt)
+#     intent_decider(user_intent,prompt)
 
 
 
