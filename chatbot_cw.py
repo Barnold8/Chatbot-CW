@@ -32,17 +32,15 @@ try:
     from shutil import copyfile, rmtree
     from sklearn.feature_extraction.text import CountVectorizer
 except ImportError:
+
+    decider = None
     os.system("pip install nltk")
     os.system("pip install scikit-learn")
     os.system("pip install numpy")
 try:
     import numpy as np
 except ImportError:
-    
-try:
-    
-except ImportError:
-    
+
 
 ## END OF IMPORT ENSURANCE
 
@@ -176,6 +174,8 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger')
 # cls()    # Clear downloads output
+nltk.download('wordnet')
+os.system("cls")    # Clear downloads output
 
 # END OF NLTK DOWNLOADS
 
@@ -759,11 +759,11 @@ def intent_decider(intent: string, inp: string) -> None:
             
             if user_name == None:
                 print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]}. ")
-                name = string_preprocess(input(f" Oh no!, I don't know your name, what is your name?\nYOU: ")).lower()
+                name = string_preprocess(input(f"JAMSIE: Oh no!, I don't know your name, what is your name?\nYOU: \nYOU: ")).lower()
                 
                 if len(name.split(" ")) < 2:
                     name = "i am " + name 
-                user_name = nameProcessor(name)
+                nameProcessor(name)
             else:
                 print(f"JAMSIE: {greetings[randint(0,len(greetings)-1)]} {user_name}. ")
 
@@ -865,12 +865,6 @@ def questionAnswer(qa_package: list[tuple],question: string):
 #     user_intent = intent(intents["general_intents"],prompt)
 
 #     intent_decider(user_intent,prompt)
-
-
-
-
-
-
 
 
 
