@@ -2,13 +2,13 @@
 
 # NOTE: All songs gathered from https://freemusicarchive.org, check "credits.txt" for more
 
-import os
-import csv
-import json 
 
 ## ENSURE USER HAS NEEDED LIBS BY TESTING IMPORTS
 
 try:
+    import os
+    import csv
+    import json 
     import numpy as np
     import nltk , re , pprint , string
     from random import randint
@@ -61,8 +61,7 @@ except ImportError:
 ## END OF IMPORT ENSURANCE
 
 class PlaylistManager:
-    
-    TEMP_PATH = "Data/temp"
+
     SONGS_PATH = "Data/Songs"
 
     def getSongs(PATH : str) -> list[str]:
@@ -74,19 +73,11 @@ class PlaylistManager:
         files = [file for file in listdir(f"{PATH}") if isfile(join(f"{PATH}", file))]
         return [file for file in files if ".mp3" in file]
 
-    def destageSongs():
-        """
-            Desc:
-                Removes the Data/temp directory
-            return: None
-        """
-        rmtree(PlaylistManager.TEMP_PATH)
-
-    def stageSongs(genres: list[str]):
+    def stageSongs(PATH: str,genres: list[str]) -> int:
         """
             Desc:
                 Copies all songs from Data/Playlist directory and puts them into a temporary directory.
-            return: None
+            return: int to say if the playlist exists or not. if you get -1, you can assume the playlist exists already
         """
 
         songs = []
@@ -94,16 +85,16 @@ class PlaylistManager:
         for genre in genres:
             for song in PlaylistManager.getSongs(PlaylistManager.SONGS_PATH + f"/{genre}"):
                 songs.append(f"{genre}/{song}")
-        print(f"Songs: {songs}\n\n\n")
-    
-        if os.path.isdir(PlaylistManager.TEMP_PATH):
-            PlaylistManager.destageSongs()
-        os.mkdir(PlaylistManager.TEMP_PATH)
-
+        # print(f"Songs: {songs}\n\n\n")
+        try:
+            os.mkdir(f"Data/Playlists/{PATH}")
+        except FileExistsError:
+            return -1
         for file in songs:
             # this one LINE, should never be seen by human kind...
-            copyfile(PlaylistManager.SONGS_PATH + f"/{file.split('/')[0]}/" + os.path.basename(file), os.path.join(PlaylistManager.TEMP_PATH,os.path.basename(file)))
-
+            copyfile(PlaylistManager.SONGS_PATH + f"/{file.split('/')[0]}/" + os.path.basename(file), os.path.join(f"Data/Playlists/{PATH}",os.path.basename(file)))
+        return 1
+    
     def listFiles(PATH : str) -> None:
         """
             Desc:
@@ -116,24 +107,10 @@ class PlaylistManager:
             time_sig = f"%02d" % (song_time_m) + ":" + f"%02d" % (song_time_s)
             print(f"Song: {file.split('.')[0]} | Song length: {time_sig}")
 
-    def destageSortedSongs(PATH: str):
-
-        os.mkdir(PATH)
-
-        for song in os.listdir(PlaylistManager.TEMP_PATH+"/"):
-            if ".mp3" in song:
-                copyfile(PlaylistManager.TEMP_PATH + "/" + os.path.basename(song), os.path.join(PATH,os.path.basename(song)))
-        
-        PlaylistManager.destageSongs()
-    
-    def sortSongs(rev: bool,PATH: str) -> list[str]:
-        """"""
-        return sorted(PlaylistManager.getSongs(PATH),reverse=rev)
             
-PlaylistManager.stageSongs(["rock","pop","metal"])
+# PlaylistManager.stageSongs("Snoozing",["pop","country"])
 
-PlaylistManager.listFiles("Data/temp")
-
+# PlaylistManager.listFiles("Data/temp")
 
 
 ### PLAYLIST MANAGEMENT CHATBOT
@@ -180,7 +157,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('averaged_perceptron_tagger')
 nltk.download('wordnet')
-# cls()   # Clear downloads output
+cls()   # Clear downloads output
 
 # END OF NLTK DOWNLOADS
 
@@ -777,7 +754,7 @@ def intent_decider(intent: string, inp: string) -> None:
         elif intent == "thanks":
             print("JAMSIE: Not a problem, glad to help! :D")
         elif intent == "transaction":
-            print("transaction")
+            transaction(inp)
         elif intent == "void":
             print("JAMSIE: No worries, take your time!")
         elif intent == "help":
@@ -858,20 +835,69 @@ def questionAnswer(qa_package: list[tuple],question: string):
 
 # Program loop
 
-# print(hi_string)
-# print("-"*len(hi_string))
 
-# while running :
+def transaction(inp:str)-> None:
+
+    
+    transactionState = True
+    
+    context = { # use this to keep context of current events
+        "playlist_name":None,
+        "playlist_maximum_duration":None,
+        "playlist_minimum_duration": None,
+        "playlist_minimum_song_time": None,
+        "playlist_maximum_song_time": None,
+        "playlist_action": None,
+        "playlist_edit_category" : None
+    }
+
+    playlist_actions = {
+        "create":"create",
+        "manufacture":"create",
+        "fabricate": "create",
+        "produce": "create",
+        "make": "create",
+        "remove":"remove",
+        "withdraw": "remove",
+        "eliminate": "remove",
+        "cut": "remove",
+        "delete": "remove",
+        "edit": "edit",
+        "manage": "edit",
+        "arrange":"edit",
+        "rearrange":"edit"
+    }
+
+    # To figure out if the user wants to do an action yet or not 
+    actions = POS(inp,"VB")
+    print(f"Actions: {actions}, len(actions): {len(actions)}")
+    action_mode = None if len(actions) != 1 else actions[0][0]
+
+    if action_mode == None:
+        for action in actions:
+            print(playlist_actions[action[0]])
+
+    while transactionState:
+
+        print(inp)
+        transactionState = False
+    
+    
+
+print(hi_string)
+print("-"*len(hi_string))
+
+while running :
    
-#     if already_asked:
-#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
-#     else:
-#         already_asked = True
-#         prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
+    if already_asked:
+        prompt = string_preprocess(con_exp(input("\nJAMSIE: What else can I help you with?\n\nYOU: ").lower()))
+    else:
+        already_asked = True
+        prompt = string_preprocess(con_exp(input("\nJAMSIE: What can I help you with?\n\nYOU: ").lower()))
 
-#     user_intent = intent(intents["general_intents"],prompt)
+    user_intent = intent(intents["general_intents"],prompt)
 
-#     intent_decider(user_intent,prompt)
+    intent_decider(user_intent,prompt)
 
 
 
