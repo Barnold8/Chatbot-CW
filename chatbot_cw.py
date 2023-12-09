@@ -93,14 +93,16 @@ class PlaylistManager:
 
         for genre in genres:
             for song in PlaylistManager.getSongs(PlaylistManager.SONGS_PATH + f"/{genre}"):
-                songs.append(song)
+                songs.append(f"{genre}/{song}")
+        print(f"Songs: {songs}\n\n\n")
     
         if os.path.isdir(PlaylistManager.TEMP_PATH):
             PlaylistManager.destageSongs()
         os.mkdir(PlaylistManager.TEMP_PATH)
 
         for file in songs:
-            copyfile(PlaylistManager.SONGS_PATH + "/" + os.path.basename(file), os.path.join(PlaylistManager.TEMP_PATH,os.path.basename(file)))
+            # this one LINE, should never be seen by human kind...
+            copyfile(PlaylistManager.SONGS_PATH + f"/{file.split('/')[0]}/" + os.path.basename(file), os.path.join(PlaylistManager.TEMP_PATH,os.path.basename(file)))
 
     def listFiles(PATH : str) -> None:
         """
@@ -128,7 +130,9 @@ class PlaylistManager:
         """"""
         return sorted(PlaylistManager.getSongs(PATH),reverse=rev)
             
-PlaylistManager.stageSongs()
+PlaylistManager.stageSongs(["rock","pop","metal"])
+
+PlaylistManager.listFiles("Data/temp")
 
 
 
