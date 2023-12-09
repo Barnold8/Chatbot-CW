@@ -10,39 +10,43 @@ import json
 
 try:
     import nltk , re , pprint , string
+    from random import randint
+    from nltk import word_tokenize , sent_tokenize
+    from nltk . util import pad_sequence
+    from nltk . lm import MLE , Laplace
+    from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
+    from nltk.corpus import stopwords
+    from sklearn.metrics.pairwise import cosine_similarity
+    from sklearn.naive_bayes import MultinomialNB
+    from sklearn.pipeline import Pipeline
+    from nltk.tokenize import PunktSentenceTokenizer
+    from nltk.stem import WordNetLemmatizer
+    from nltk.stem import *
+    from nltk.sentiment.vader import SentimentIntensityAnalyzer
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
+    from os import listdir
+    from os.path import isfile, join
+    from datetime import datetime
+    from sys import platform
+    from shutil import copyfile, rmtree
+    from sklearn.feature_extraction.text import CountVectorizer
 except ImportError:
     os.system("pip install nltk")
+    os.system("pip install scikit-learn")
+    os.system("pip install numpy")
 try:
     import numpy as np
 except ImportError:
-    os.system("pip install numpy")
+    
 try:
-    from sklearn.feature_extraction.text import CountVectorizer
+    
 except ImportError:
-    os.system("pip install scikit-learn")
+    
 
 ## END OF IMPORT ENSURANCE
 
-from random import randint
-from nltk import word_tokenize , sent_tokenize
-from nltk . util import pad_sequence
-from nltk . lm import MLE , Laplace
-from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
-from nltk.corpus import stopwords
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
-from nltk.tokenize import PunktSentenceTokenizer
-from nltk.stem import WordNetLemmatizer
-from nltk.stem import *
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from os import listdir
-from os.path import isfile, join
-from datetime import datetime
-from sys import platform
-from shutil import copyfile, rmtree
+
 
 class PlaylistManager:
     
