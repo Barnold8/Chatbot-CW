@@ -903,66 +903,63 @@ def getPlaylistName(inp: str) -> str:
     
     LOOKAHEAD = 1
     LOOKAHEAD_MAX = 3
-    playlist_name = ""
-    rule_words = ["named","by","as"]
-    custom_stop_words = ['create', 'manufacture', 'fabricate', 'produce', 'make', 'remove', 'withdraw', 'eliminate', 'cut', 'delete', 'edit', 'manage', 'arrange', 'rearrange','want','playlist']
+    LL = True # look left
+    LR = True # look right
+    custom_stop_words = ['create', 'manufacture', 'fabricate', 'produce', 'make', 'remove', 'withdraw', 'eliminate', 'cut', 'delete', 'edit', 'manage', 'arrange', 'rearrange','want','playlist',"ok"]
     tokens = word_tokenize(inp)
     sw = stopwords.words('english') + custom_stop_words
+    sw.remove("your")
     
     stop_words = set(sw)
 
-    tokens = [word for word in tokens if word.lower() not in stop_words] # remove stop words from input
+    tokens = [lemmatizer.lemmatize(word) for word in tokens if word.lower() not in stop_words] # remove stop words from input
     inp = " ".join(tokens)
-
-    # inp = inp.split(" ")
-    # inp.remove("playlist") # remove word playlist since its seen as a NN which messes with finding a name
-    # inp = " ".join(inp)
     
     NN = POS(inp,"NN")
     NNP = POS(inp,"NNP")
+    PRPS = POS(inp,"PRP$")
+    JJ = POS(inp,"JJ")
+    NNPS = POS(inp,"NNPS")
 
-    if len(NNP) == 0 and len(NN) == 0: # Theres no proper nouns or common nouns (we need to look further for deeper context)
+    accepted_tags = ["NN","NNP","PRP$","JJ","NNPS"]
+    accepted_tags_arrs = [NN,NNP,PRPS,JJ,NNPS]
+    curr_index = None
 
-        token_set = set(tokens)
-        rule_words_set = set(rule_words)
-        tr_intersection = token_set.intersection(rule_words_set) # not very common to find something here
+    for tag in accepted_tags_arrs:
+        if len(tag) > 0:
+            try:
+                curr_index = tokens.index(tag[0][0])
+            except IndexError:
+                pass
+
+    if curr_index != None:
         
-        if len(tr_intersection) > 0:
-            print(tr_intersection)
-    else:
-        if len(NNP) > 0:
-            print(tokens.index(NNP[0][0]))
-            pass
-        
-        else: # we can assume NN has value and NNP doesnt
-            accepted_tags = ["NN","NNP"]
-            curr_index = tokens.index(NN[0][0])
-            name = [tokens[curr_index]]
-            while LOOKAHEAD < LOOKAHEAD_MAX:
-                
-                try:
-                    tag_L = POS(tokens[curr_index - LOOKAHEAD])[0]
-                    
-                    if tag_L[1] in accepted_tags:
-                        name.insert(0, tag_L[0])
-                    
-                except IndexError:
-                    pass
-                try:
-                    tag_R = POS(tokens[curr_index + LOOKAHEAD])[0]
-                    if tag_R[1] in accepted_tags:
-                        name.append(tag_R)
-                    
-                except IndexError:
-                    pass
-                LOOKAHEAD += 1
-            print(name)
-
+        name = [tokens[curr_index]]
        
+        while LOOKAHEAD < LOOKAHEAD_MAX:
             
+            try:
+                tag_L = POS(tokens[curr_index - LOOKAHEAD])[0]
+                
+                if tag_L[1] in accepted_tags and LL == True:
+                    name.insert(0, tag_L[0])
+                else:
+                    LL = False
+                
+            except IndexError:
+                pass
+            try:
+                tag_R = POS(tokens[curr_index + LOOKAHEAD])[0]
+                if tag_R[1] in accepted_tags and LR == True:
+                    name.append(tag_R[0])
+                else:
+                    LR = False
 
-    
-    
+            except IndexError:
+                pass
+            LOOKAHEAD += 1
+
+        return " ".join(name)
  
 def transaction(inp:str)-> None:
     
@@ -988,14 +985,14 @@ def transaction(inp:str)-> None:
     ## Try and extract as many features as possible from the input to begin with
     # context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
     context["playlist_name"] = getPlaylistName(inp)
+    print(context["playlist_name"])
+
     ## Try and extract as many features as possible from the input to begin with
     
     # While loop for clarification on data we need and other context scenarios
     while transactionState:
         
         transactionState = False
-    
-    
 
 print(hi_string)
 print("-"*len(hi_string))
