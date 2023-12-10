@@ -855,7 +855,6 @@ def getPlaylistAction(inp: str) -> str:
         "rearrange":"edit"
     }
 
-    print(playlist_actions.keys())
     actions = POS(inp,"VB")
 
     # filter non action keywords out
@@ -872,10 +871,12 @@ def getPlaylistAction(inp: str) -> str:
                 action_mode.append(playlist_actions[action[0]])
             except KeyError:
                 pass # ignore non action keywords
-
+        
         options = [word for word in action_mode]
 
-        choice = string_preprocess(input(f"JAMSIE: which of these did you mean to say if any? {', '.join(options)}\nYOU: ")).split(" ")
+        choice_str = f"JAMSIE: which of these did you mean to say if any? {', '.join(options)}\nYOU: " if len(action_mode) > 0 else f"JAMSIE: which of these did you mean to say if any? create, edit, delete \nYOU: "
+
+        choice = string_preprocess(input(choice_str).split(" "))
     
         for word in choice:
             if word in options:
@@ -884,18 +885,14 @@ def getPlaylistAction(inp: str) -> str:
 
         attempts = 3
 
-        while choice not in options and type(action_mode) != str:
-            
-            if attempts <= 0:
-                print("JAMSIE: I am dreadfully sorry, I couldn't quite understand you. Not to worry! We will come back to this later on :D")
-                return None
-            choice = string_preprocess(input(f"JAMSIE: I'm sorry, I didn't quite catch that, which of these did you mean to say, if any? {' '.join(options)}\nYOU: ")).split(" ")
-            
-            for word in choice:
-                if word in options:
-                    action_mode = word
-            
-            attempts -= 1
+        while attempts > 0:
+            category_options = ["create","edit","delete"]
+            if choice not in category_options:
+                choice = string_preprocess(input(choice_str).split(" "))
+                attempts -= 1
+            else:
+                action_mode = choice
+                break
 
         return action_mode    
     
@@ -983,9 +980,9 @@ def transaction(inp:str)-> None:
     }
 
     ## Try and extract as many features as possible from the input to begin with
-    # context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
+    context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
     context["playlist_name"] = getPlaylistName(inp)
-    print(context["playlist_name"])
+    
 
     ## Try and extract as many features as possible from the input to begin with
     
