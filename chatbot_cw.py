@@ -16,13 +16,13 @@ try:
     from nltk . util import pad_sequence
     from nltk . lm import MLE , Laplace
     from nltk . lm . preprocessing import pad_both_ends , padded_everygram_pipeline
-    from nltk.corpus import stopwords
     from sklearn.metrics.pairwise import cosine_similarity
     from sklearn.naive_bayes import MultinomialNB
     from sklearn.pipeline import Pipeline
     from nltk.tokenize import PunktSentenceTokenizer
     from nltk.stem import WordNetLemmatizer
     from nltk.stem import *
+    from nltk.corpus import stopwords
     from nltk.sentiment.vader import SentimentIntensityAnalyzer
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.metrics.pairwise import cosine_similarity
@@ -548,15 +548,16 @@ def POS(user_input: str, grab_by_tag = None): # Possible fix to singular name be
     # # custom_punctuation.replace(".", "")                             # Remove the full stop in the custom punctuation (We need this to identify what and what isnt a sentence)
 
     # user_input = "".join([char for char in user_input if char not in custom_punctuation])
-    # ##
+    # ## TEXT PRE PROCESSING STAGE
 
     # tokenized_txt = word_tokenize(user_input.lower())
-
+    
     user_input = string_preprocess(user_input)
+    
     user_input = lemmatizeString(user_input)
 
     tokenized_txt = word_tokenize(user_input)
-
+   
 
     # Data sourced from https://github.com/dominictarr/random-name/blob/master/first-names.txt
     with open("Data/names.txt") as file:
@@ -854,14 +855,23 @@ def getPlaylistAction(inp: str) -> str:
         "rearrange":"edit"
     }
 
-    # To figure out if the user wants to do an action yet or not 
+    print(playlist_actions.keys())
     actions = POS(inp,"VB")
+
+    # filter non action keywords out
+    for action in actions:
+        if action[0] not in playlist_actions.keys():
+            actions.remove(action)
+         
     
     action_mode = [] if len(actions) != 1 else actions[0][0]
     
     if len(action_mode) == 0:
         for action in actions:
-            action_mode.append(playlist_actions[action[0]])
+            try:
+                action_mode.append(playlist_actions[action[0]])
+            except KeyError:
+                pass # ignore non action keywords
 
         options = [word for word in action_mode]
 
@@ -889,8 +899,71 @@ def getPlaylistAction(inp: str) -> str:
 
         return action_mode    
     
+def getPlaylistName(inp: str) -> str:
+    
+    LOOKAHEAD = 1
+    LOOKAHEAD_MAX = 3
+    playlist_name = ""
+    rule_words = ["named","by","as"]
+    custom_stop_words = ['create', 'manufacture', 'fabricate', 'produce', 'make', 'remove', 'withdraw', 'eliminate', 'cut', 'delete', 'edit', 'manage', 'arrange', 'rearrange','want','playlist']
+    tokens = word_tokenize(inp)
+    sw = stopwords.words('english') + custom_stop_words
+    
+    stop_words = set(sw)
+
+    tokens = [word for word in tokens if word.lower() not in stop_words] # remove stop words from input
+    inp = " ".join(tokens)
+
+    # inp = inp.split(" ")
+    # inp.remove("playlist") # remove word playlist since its seen as a NN which messes with finding a name
+    # inp = " ".join(inp)
+    
+    NN = POS(inp,"NN")
+    NNP = POS(inp,"NNP")
+
+    if len(NNP) == 0 and len(NN) == 0: # Theres no proper nouns or common nouns (we need to look further for deeper context)
+
+        token_set = set(tokens)
+        rule_words_set = set(rule_words)
+        tr_intersection = token_set.intersection(rule_words_set) # not very common to find something here
+        
+        if len(tr_intersection) > 0:
+            print(tr_intersection)
+    else:
+        if len(NNP) > 0:
+            print(tokens.index(NNP[0][0]))
+            pass
+        
+        else: # we can assume NN has value and NNP doesnt
+            accepted_tags = ["NN","NNP"]
+            curr_index = tokens.index(NN[0][0])
+            name = [tokens[curr_index]]
+            while LOOKAHEAD < LOOKAHEAD_MAX:
+                
+                try:
+                    tag_L = POS(tokens[curr_index - LOOKAHEAD])[0]
+                    
+                    if tag_L[1] in accepted_tags:
+                        name.insert(0, tag_L[0])
+                    
+                except IndexError:
+                    pass
+                try:
+                    tag_R = POS(tokens[curr_index + LOOKAHEAD])[0]
+                    if tag_R[1] in accepted_tags:
+                        name.append(tag_R)
+                    
+                except IndexError:
+                    pass
+                LOOKAHEAD += 1
+            print(name)
+
+       
+            
+
     
     
+ 
 def transaction(inp:str)-> None:
     
     # TODO: 
@@ -899,8 +972,6 @@ def transaction(inp:str)-> None:
     #   all relevant context is stored within the context dictionary
     #   check the POS of the input string to gather more information, like verbs for actions, types of nouns for possible playlist titles
     #   for the playlist name, you could find a noun and then check for adjacent nouns previous and forward to generate a playlist
-    #   fix the getting verb part, the user cant say "create sorry" because its checking for direct strings
-
 
     transactionState = True
     
@@ -914,8 +985,12 @@ def transaction(inp:str)-> None:
         "playlist_edit_category" : None
     }
 
-    context["playlist_action"] = getPlaylistAction(inp)
-
+    ## Try and extract as many features as possible from the input to begin with
+    # context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
+    context["playlist_name"] = getPlaylistName(inp)
+    ## Try and extract as many features as possible from the input to begin with
+    
+    # While loop for clarification on data we need and other context scenarios
     while transactionState:
         
         transactionState = False
@@ -946,3 +1021,9 @@ while running :
 # https://www.nltk.org/api/nltk.sentiment.vader.html
 
 # https://www.newscatcherapi.com/blog/ultimate-guide-to-text-similarity-with-python#:~:text=Cosine%20Similarity%20computes%20the%20similarity,the%20cosine%20similarity%20is%201
+
+
+
+
+
+
