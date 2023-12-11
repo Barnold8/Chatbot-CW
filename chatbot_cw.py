@@ -184,7 +184,32 @@ class PlaylistManager:
         elif playlist_action == "create":
             pass
         elif playlist_action == "remove":
-            pass
+            if os.path.exists(f"Data/Playlists/{context['playlist_name']}") == False:
+                print(f"JAMSIE: I'm so sorry, there doesnt seem to be a playlist named {context['playlist_name']}")
+            else:
+                try:
+                    sent = sentiment(input("JAMSIE: Are you sure you want to delete your playlist?\n\nYOU: "))
+
+                    if sent == 0:
+                        while sent != 0:
+                        
+                            if sent == 1:
+                                rmtree(f"Data/Playlists/{context['playlist_name']}")
+                            elif sent == 0:
+                                sent = sentiment(input("JAMSIE: Sorry, im not sure if you want to remove your great tunes, the easiest way for me to understand is a yes or no :D \n\nYOU: "))
+                            else:
+                                print("JAMSIE: Not to worry! I will abort the process of deleting your playlist, your tunes are safe :D")
+                    else:
+                         if sent == 1:
+                                rmtree(f"Data/Playlists/{context['playlist_name']}")
+                         else:
+                                print("JAMSIE: Not to worry! I will abort the process of deleting your playlist, your tunes are safe :D")
+
+
+                except IOError as _IOError:
+                    print("JAMSIE: How odd! I tried removing your playlist for you, but an error has ocurred. Not to worry, this isn't your fault but my own. I do apologise.")
+
+
         
     def getSongs(PATH : str) -> list[str]:
         """
@@ -1211,7 +1236,7 @@ def transaction(inp:str)-> None:
     context_keys = [key for key in context.keys() if context[key] == None]
 
     context_keys.remove("playlist_edit_category") # so we arent bogged down with it in the transactional stuff
-    
+
     while transactionState:
         
         if context["playlist_action"] == "edit" and context["playlist_time"] == None:
@@ -1219,6 +1244,15 @@ def transaction(inp:str)-> None:
             context["playlist_genres"] = []
             context_keys.remove("playlist_time")
             context_keys.remove("playlist_genres")
+            
+        elif context["playlist_action"] == "remove":
+            context["playlist_time"] = "00:00"
+            context["playlist_genres"] = []
+            context_keys.remove("playlist_time")
+            context_keys.remove("playlist_genres")
+
+            context["playlist_name"] = (transactional_functions["playlist_name"])()
+            break
 
         if len(context_keys) <= 0 :
             transactionState = False
@@ -1237,7 +1271,7 @@ def transaction(inp:str)-> None:
 
     if context["playlist_action"] == "edit":
         context["playlist_edit_category"] = (transactional_functions["playlist_edit_category"])()
-        
+
     PlaylistManager.startTransaction(context)
 
 print(hi_string)
