@@ -807,7 +807,9 @@ def string_preprocess(inp: string) -> str:
             consistency in our data 
         return: string
     """
-    custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-" 
+    custom_punctuation  = string.punctuation + "’" + "-" + "‘" + "-"
+    custom_punctuation = custom_punctuation.replace(":","")
+
     inp = "".join([char for char in inp if char not in custom_punctuation])
     return inp.lower()
 
@@ -906,12 +908,13 @@ def getPlaylistName(inp: str) -> str:
     tokens = word_tokenize(inp)
     sw = stopwords.words('english') + custom_stop_words
     sw.remove("your")
-    
+       
     stop_words = set(sw)
 
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word.lower() not in stop_words] # remove stop words from input
+
     inp = " ".join(tokens)
-    
+
     NN = POS(inp,"NN")
     NNP = POS(inp,"NNP")
     PRPS = POS(inp,"PRP$")
@@ -957,7 +960,14 @@ def getPlaylistName(inp: str) -> str:
             LOOKAHEAD += 1
 
         return " ".join(name)
- 
+
+def getPlaylistTime(inp: str) -> str:
+    try:
+        print(inp)
+        time_regex = re.compile(r'(\d{2}):(\d{2})')
+        return time_regex.search(inp).group()
+    except Exception:
+        pass
 def transaction(inp:str)-> None:
     
     # TODO: 
@@ -973,16 +983,14 @@ def transaction(inp:str)-> None:
         "playlist_name":None,
         "playlist_maximum_duration":None,
         "playlist_minimum_duration": None,
-        "playlist_minimum_song_time": None,
-        "playlist_maximum_song_time": None,
         "playlist_action": None,
-        "playlist_edit_category" : None
+        "playlist_edit_category" : None # if user says edit, make sure you know what they mean by this 
     }
 
     ## Try and extract as many features as possible from the input to begin with
-    context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
-    context["playlist_name"] = getPlaylistName(inp)
-    
+    # context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
+    # context["playlist_name"] = getPlaylistName(inp)
+    print(getPlaylistTime(inp))
 
     ## Try and extract as many features as possible from the input to begin with
     
