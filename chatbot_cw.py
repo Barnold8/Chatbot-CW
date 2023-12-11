@@ -182,7 +182,51 @@ class PlaylistManager:
                             print("JAMSIE: Hmmm, something is odd here, some kind of error occurred, I am dreadfully sorry :( I will try to be better next time.")
                     
         elif playlist_action == "create":
-            pass
+
+            sent = sentiment(input(f"JAMSIE: So, I noticed you said you want your playlist name to be '{context['playlist_name']}' is this correct?\n\nYOU: "))
+            
+            songs = []
+
+            while sent == -1 or (sent == 0) == True:
+                
+                print("JAMSIE: Sorry I didnt understand what you wanted your playlist name to be. I do apologise.")
+                context["playlist_name"] = transactional_name()
+                sent = sentiment(input(f"JAMSIE: So, I noticed you said you want your playlist name to be '{context['playlist_name']}' is this correct?\n\nYOU: "))
+
+            for category in context["playlist_genres"]:
+                songs_by_genre = list(set(PlaylistManager.getSongs(PlaylistManager.SONGS_PATH + f"/{category}")))
+                _songs = []
+                for song in songs_by_genre:
+                    _songs.append(f"Data/Songs/{category}/{song}")
+                songs += _songs
+
+
+            playlist_time = datetime.strptime(context["playlist_time"], "%M:%S") - datetime(1900, 1, 1, 0, 0, 0)
+
+            playlist_songs = []
+
+            while playlist_time.total_seconds() > 0:
+                if len(songs) <=0:
+                    break
+                for song in songs: # I hate working with time related data
+
+                    song_metadata = MP3(song)  
+                    song_time_m, song_time_s = divmod(song_metadata.info.length, 60) 
+                    time_sig = f"%02d" % (song_time_m) + ":" + f"%02d" % (song_time_s)
+
+                    playlist_time -= (datetime.strptime(time_sig, "%M:%S") - datetime(1900, 1, 1, 0, 0, 0))
+
+                    playlist_songs.append(song)
+
+                    songs.remove(song)
+
+                    break
+                                    
+            os.mkdir(f"Data/Playlists/{context['playlist_name']}")
+
+            for song in playlist_songs:
+                copyfile(song,f"Data/Playlists/{context['playlist_name']}/" + os.path.basename(song))
+
         elif playlist_action == "remove":
             if os.path.exists(f"Data/Playlists/{context['playlist_name']}") == False:
                 print(f"JAMSIE: I'm so sorry, there doesnt seem to be a playlist named {context['playlist_name']}")
@@ -524,36 +568,30 @@ def intent_help() -> None:
 
     help_intent = intent(intents['help_intents'],user_input)
 
+    if help_intent == "stop":
+        print("JAMSIE: The purpose of this is to end our conversation. Don't worry, I will still be here for the next time you need me. :D")
+        
+    elif help_intent == "name_retrieval":
+        print("JAMSIE: To help provide personalisation to this conversation, I can remember your name. All you have to do is tell me your name, and I will remember it.\nFor example, this is me telling you my name, 'I am JAMSIE'.\nI will also be able to say your name at key points. You can try 'What's my name?'")
+        
+    elif help_intent == "greeting":
+        print("JAMSIE: I love a good greeting. So all you need to do is say hello to me in any way you want and I will greet you right on back! :D")
+        
+    elif help_intent == "playlist":
+        # flesh this out more when i figure out what to actually do with this
+        print("JAMSIE: You can create a playlist, remove a playlist, or you can even edit a playlist! All you have to do is say something like 'I want to create a playlist' and the transaction will begin!")
 
-    asking = True
-    while asking:
-        # why cant python have syntatically good switch case...
-        if help_intent == "stop":
-            print("JAMSIE: The purpose of this is to end our conversation. Don't worry, I will still be here for the next time you need me. :D")
-            asking = False
-        elif help_intent == "name_retrieval":
-            print("JAMSIE: To help provide personalisation to this conversation, I can remember your name. All you have to do is tell me your name, and I will remember it.\nFor example, this is me telling you my name, 'I am JAMSIE'.\nI will also be able to say your name at key points. You can try 'What's my name?'")
-            asking = False
-        elif help_intent == "greeting":
-            print("JAMSIE: I love a good greeting. So all you need to do is say hello to me in any way you want and I will greet you right on back! :D")
-            asking = False
-        elif help_intent == "playlist":
-            # flesh this out more when i figure out what to actually do with this
-            print("JAMSIE: My main purpose is to help you with your playlist! We will keep a playlist together, in a relative directory to here. I can tell you information to your playlist, sort your playlist by certain factors like duration or song title. ")
-            asking = False
-        elif help_intent == "help":
-            print("JAMSIE: Asking for help will just provide you with a simple description of each of my features. After this, you have the option to follow up asking more on any of the topics. This is actually how you got here, good job partner! :D")
-            asking = False
-        elif help_intent == "question":
-            print("JAMSIE: I am absolutely brimming with knowledge. You can tell me that you wish to ask a question and I will start listening, after this you can ask your question and I will do my best to answer! :D")
-            asking = False
-        elif help_intent == "no":
-            print("JAMSIE: No worries! Remember, if you ever need help, just ask :D")
-            asking = False
-        else:
-            print("JAMSIE: Im sorry, I didn't understand what you asked. Would you like to ask again?")
-            
-            # help_intent = intent(intents['help_intents'],user_input)
+    elif help_intent == "help":
+        print("JAMSIE: Asking for help will just provide you with a simple description of each of my features. After this, you have the option to follow up asking more on any of the topics. This is actually how you got here, good job partner! :D")
+      
+    elif help_intent == "question":
+        print("JAMSIE: I am absolutely brimming with knowledge. You can tell me that you wish to ask a question and I will start listening, after this you can ask your question and I will do my best to answer! :D")
+      
+    elif help_intent == "no":
+        print("JAMSIE: No worries! Remember, if you ever need help, just ask :D")
+    
+    else:
+        print("JAMSIE: Im sorry, I didn't understand what you asked.")
                 
 
 def intent(intents: list[dict], user_input: str, thresh_ig = False) -> str:
@@ -922,8 +960,7 @@ def intent_decider(intent: string, inp: string) -> None:
                 if answer == None:
                     
                     print("JAMSIE: Sorry, I couldn't understand your question.")
-                    
-                print(f"Answer: {answer}")
+
                 sub_process = False
 
         elif intent == "small_talk":
@@ -1011,6 +1048,9 @@ def getPlaylistAction(inp: str) -> str:
             actions.remove(action)
     
     action_mode = [] if len(actions) != 1 else actions[0][0]
+    
+
+ 
 
     if len(action_mode) == 0:
         for action in actions:
@@ -1044,8 +1084,11 @@ def getPlaylistAction(inp: str) -> str:
                 break
         if attempts == 0:
             print("JAMSIE: Sorry!, I couldn't quite understand what you want to do to in terms of a playlist. Not to worry, we will come back to this later!\n\n")
-
-    return None if len(action_mode) == 0 else action_mode    
+    else:
+        if action_mode in playlist_actions.keys():
+            return playlist_actions[action_mode]
+        
+    return None   
     
 def getPlaylistName(inp: str) -> str:
     
@@ -1188,7 +1231,9 @@ def transactional_genres() -> str:
     genres = ["country","metal","pop","rock"]
     chosen_genres = []
 
-    inp = input("JAMSIE: And what genres, or even genre, would you like the playlist to contain?\n\nYOU: ").split(" ")
+    genre_string = '\n'.join(genres)
+
+    inp = input(f"JAMSIE: And what genres, or even genre, of the following would you like the playlist to contain? \n\n{genre_string}\n\nYOU: ").split(" ")
 
     for word in inp:
         w = string_preprocess(word)
@@ -1223,12 +1268,12 @@ def transaction(inp:str)-> None:
         "playlist_time": transactional_time,
         "playlist_genres": transactional_genres
     }
-
+    
     ## Try and extract as many features as possible from the input to begin with
     context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
     context["playlist_name"] = getPlaylistName(inp)
     context["playlist_time"] = getPlaylistTime(inp)
-
+    print(context)
     ## Try and extract as many features as possible from the input to begin with
     
     # While loop for clarification on data we need and other context scenarios
