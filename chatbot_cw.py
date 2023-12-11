@@ -128,7 +128,6 @@ class PlaylistManager:
                             _songs.append(f"Data/Songs/{category}/{song}")
                         songs += _songs
 
-                    print(songs) 
                     print("JAMSIE: please input the numbers corresponding to the songs that you wish to add to this playlist!\n") 
                     
                     max_num = 1
@@ -145,22 +144,43 @@ class PlaylistManager:
                     
                     numbers = list(set([int(num) for num in numbers if int(num) < max_num])) # filter out duplicates
 
-                    add_songs = []
-
                     for number in numbers:
                         try:
-
-                            add_songs.append(songs[number-1])
                             copyfile(songs[number-1],f"Data/Playlists/{context['playlist_name']}/" + os.path.basename(songs[number-1]))
-                            print(current_playlist_path + "/")
 
                         except IOError as _IOError:
                             print(f"\n\nJAMSIE: Sorry, I couldn't add {songs[number-1]} to {context['playlist_name']}")
                             
-
                 elif category == "remove":
-                    pass
+                    
+                    songs = PlaylistManager.getSongs(f"Data/Playlists/{context['playlist_name']}")
+                    if len(songs) <= 0:
+                        print("JAMSIE: Hmm, thats odd, there's no songs here. You can always try adding songs by saying something like 'I want to edit a playlist' and going on from there.")
+                        return
+                    max_num = 1
+                    
+                    print("JAMSIE: What songs would you like to remove from the following?")
+                    
+                    for song in songs:
+                        print(f"\t{songs.index(song)+1} | {song.split('/')[-1]}")
+                        max_num += 1
 
+                    song_choices = input(f"\n\n\nYOU: ")
+                    
+                    number_pattern = r'\d+'
+                    
+                    numbers = re.findall(number_pattern, song_choices)
+                    
+                    numbers = list(set([int(num) for num in numbers if int(num) < max_num])) # filter out duplicates
+
+                    for number in numbers:
+                        path = f"Data/Playlists/{context['playlist_name']}"
+                                                        
+                        if os.path.exists(f"{path}/{songs[number-1]}"):
+                            os.remove(f"{path}/{songs[number-1]}")
+                        else:
+                            print("JAMSIE: Hmmm, something is odd here, some kind of error occurred, I am dreadfully sorry :( I will try to be better next time.")
+                    
         elif playlist_action == "create":
             pass
         elif playlist_action == "remove":
