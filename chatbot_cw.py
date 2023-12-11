@@ -858,15 +858,14 @@ def getPlaylistAction(inp: str) -> str:
     }
 
     actions = POS(inp,"VB")
-
+    
     # filter non action keywords out
     for action in actions:
         if action[0] not in playlist_actions.keys():
             actions.remove(action)
-         
     
     action_mode = [] if len(actions) != 1 else actions[0][0]
-    
+
     if len(action_mode) == 0:
         for action in actions:
             try:
@@ -874,9 +873,12 @@ def getPlaylistAction(inp: str) -> str:
             except KeyError:
                 pass # ignore non action keywords
         
+        if len(action_mode) == 0:
+            return None
+        
         options = [word for word in action_mode]
 
-        choice_str = f"JAMSIE: which of these did you mean to say if any? {', '.join(options)}\nYOU: " if len(action_mode) > 0 else f"JAMSIE: which of these did you mean to say if any? create, edit, delete \nYOU: "
+        choice_str = f"JAMSIE: which of these did you mean to say if any? {', '.join(options)}\nYOU: " if len(action_mode) > 0 else f"JAMSIE: which of these did you mean to say if any? create, edit, remove \nYOU: "
 
         choice = string_preprocess(input(choice_str).split(" "))
     
@@ -884,19 +886,20 @@ def getPlaylistAction(inp: str) -> str:
             if word in options:
                 action_mode = word
 
-
         attempts = 3
 
         while attempts > 0:
-            category_options = ["create","edit","delete"]
+            category_options = ["create","edit","remove"]
             if choice not in category_options:
                 choice = string_preprocess(input(choice_str).split(" "))
                 attempts -= 1
             else:
                 action_mode = choice
                 break
+        if attempts == 0:
+            print("JAMSIE: Sorry!, I couldn't quite understand what you want to do to in terms of a playlist. Not to worry, we will come back to this later!\n\n")
 
-        return action_mode    
+    return None if len(action_mode) == 0 else action_mode    
     
 def getPlaylistName(inp: str) -> str:
     
@@ -904,7 +907,7 @@ def getPlaylistName(inp: str) -> str:
     LOOKAHEAD_MAX = 3
     LL = True # look left
     LR = True # look right
-    custom_stop_words = ['create', 'manufacture', 'fabricate', 'produce', 'make', 'remove', 'withdraw', 'eliminate', 'cut', 'delete', 'edit', 'manage', 'arrange', 'rearrange','want','playlist',"ok"]
+    custom_stop_words = ['create', 'manufacture', 'fabricate', 'produce', 'make', 'remove', 'withdraw', 'eliminate', 'cut', 'delete','remove', 'edit', 'manage', 'arrange', 'rearrange','want','playlist',"ok"]
     tokens = word_tokenize(inp)
     sw = stopwords.words('english') + custom_stop_words
     sw.remove("your")
@@ -963,41 +966,151 @@ def getPlaylistName(inp: str) -> str:
 
 def getPlaylistTime(inp: str) -> str:
     try:
-        print(inp)
         time_regex = re.compile(r'(\d{2}):(\d{2})')
         return time_regex.search(inp).group()
-    except Exception:
-        pass
-def transaction(inp:str)-> None:
+    except AttributeError:
+        return None
+
+def transactional_name() -> str:
+
+    prompt = string_preprocess(con_exp(input("\nJAMSIE: And what is the name of this playlist?\n\nYOU: ").lower()))
+    return prompt
+
+def transactional_time() -> str:
+
+    time = getPlaylistTime(input("JAMSIE: And how long do you want the playlist to be around?\n\nYOU: "))
+
+    while time == None:
+        time = getPlaylistTime(input("JAMSIE: Sorry! I'm not sure what time you meant. Please write the time like 12:04, where the left side is minutes and the right side is seconds :D\n\nYOU: "))
     
-    # TODO: 
-    #   make sure that things that are needed are gathered from input, if they cant be gathered, get them clarified in the while loop
-    #   say if somebody wants something specific, but more info is needed, clarify that within the while loop
-    #   all relevant context is stored within the context dictionary
-    #   check the POS of the input string to gather more information, like verbs for actions, types of nouns for possible playlist titles
-    #   for the playlist name, you could find a noun and then check for adjacent nouns previous and forward to generate a playlist
+    return time
+
+def transactional_edit_category() -> str:
+
+    choices = ["add","remove","name"]
+    choices_ext = ["add a song","remove a song","or change the name of the playlist"]
+    choice_str = input(f"JAMSIE: And when you said you want to edit your playlist, do you want to: {', '.join(choices_ext)}?\n\nYOU: ").split(" ")
+
+    attempts = 3
+
+    for word in choice_str:
+        w = string_preprocess(word)
+        if w in choices:
+            return w
+
+    while choice_str not in choices:
+        if attempts <= 0:
+            return None
+        
+        choice_str = string_preprocess(input(f"JAMSIE: Sorry, i'm not sure what kind of thing youd like to do whether it's {', '.join(choices_ext)}. What did you mean?\n\nYOU: ")).split(" ")
+        for word in choice_str:
+            w = string_preprocess(word)
+            if w in choices:
+                return w
+        attemps -= 1
+    return None
+            
+
+def transactional_action() -> str:
+
+    actions = ["create","edit","remove"]
+    action = string_preprocess(input("JAMSIE: And do you want to: create, edit or remove a playlist?\n\nYOU: ")).split(" ")
+
+    for word in action:
+        w = string_preprocess(word)
+        if w in actions:
+            return w
+
+    while action not in actions:
+        action = string_preprocess(input("JAMSIE: Sorry, i'm not sure what kind of thing youd like to do whether its create a playlist, edit a playlist or remove a playlist. What did you mean?\n\nYOU: ")).split(" ")
+        for word in action:
+            w = string_preprocess(word)
+            if w in actions:
+                return w
+            
+    return None
+
+def transactional_genres() -> str:
+
+    genres = ["country","metal","pop","rock"]
+    chosen_genres = []
+
+    inp = input("JAMSIE: And what genres, or even genre, would you like the playlist to contain?\n\nYOU: ").split(" ")
+
+    for word in inp:
+        w = string_preprocess(word)
+        if w in genres:
+            chosen_genres.append(w)
+    
+    while len(chosen_genres) <= 0:
+        inp = input("I'm sorry, either you mentioned a genre I don't have available right now, or I misunderstood. Please say the genre or genres you want the playlist to contain\n\nYOU: ").split(" ")
+        for word in inp:
+            w = string_preprocess(word)
+            if w in genres:
+                chosen_genres.append(w)
+
+    return chosen_genres if len(chosen_genres) > 0 else None
+
+def transaction(inp:str)-> None:
 
     transactionState = True
     
     context = { # use this to keep context of current events
         "playlist_name":None,
-        "playlist_maximum_duration":None,
-        "playlist_minimum_duration": None,
         "playlist_action": None,
-        "playlist_edit_category" : None # if user says edit, make sure you know what they mean by this 
+        "playlist_edit_category" : None, # if user says edit, make sure you know what they mean by this 
+        "playlist_time": None,
+        "playlist_genres": None,
+    }
+
+    transactional_functions = {
+        "playlist_name":transactional_name,
+        "playlist_action": transactional_action,
+        "playlist_edit_category" : transactional_edit_category, # if user says edit, make sure you know what they mean by this 
+        "playlist_time": transactional_time,
+        "playlist_genres": transactional_genres
     }
 
     ## Try and extract as many features as possible from the input to begin with
-    # context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
-    # context["playlist_name"] = getPlaylistName(inp)
-    print(getPlaylistTime(inp))
+    context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
+    context["playlist_name"] = getPlaylistName(inp)
+    context["playlist_time"] = getPlaylistTime(inp)
 
     ## Try and extract as many features as possible from the input to begin with
     
     # While loop for clarification on data we need and other context scenarios
+
+    context_keys = [key for key in context.keys() if context[key] == None]
+
+    context_keys.remove("playlist_edit_category") # so we arent bogged down with it in the transactional stuff
+    
     while transactionState:
         
-        transactionState = False
+        if context["playlist_action"] == "edit" and context["playlist_time"] == None:
+            context["playlist_time"] = "00:00"
+            context["playlist_genres"] = []
+            context_keys.remove("playlist_time")
+            context_keys.remove("playlist_genres")
+
+        if len(context_keys) <= 0 :
+            transactionState = False
+            break
+
+        current_context = context_keys[randint(0,len(context_keys)-1)]
+        
+        context[current_context] = (transactional_functions[current_context])()
+
+        if context[current_context] != None:
+            context_keys.remove(current_context)
+
+        # print(f"context: {context}\n\ncurrent context: {current_context}\n\ncontext keys{context_keys}")
+
+        # transactionState = False
+
+    if context["playlist_action"] == "edit":
+        context["playlist_edit_category"] = (transactional_functions["playlist_edit_category"])()
+        print(context["playlist_edit_category"])
+    # AFTER WHILE LOOP, CHECK IF USER SAID THEY WANT TO EDIT THE PLAYLIST
 
 print(hi_string)
 print("-"*len(hi_string))
@@ -1014,8 +1127,6 @@ while running :
 
     intent_decider(user_intent,prompt)
 
-
-
 ## HELP DOCUMENTATION
 
 # https://www.nltk.org/book/ch05.html
@@ -1023,9 +1134,3 @@ while running :
 # https://www.nltk.org/api/nltk.sentiment.vader.html
 
 # https://www.newscatcherapi.com/blog/ultimate-guide-to-text-similarity-with-python#:~:text=Cosine%20Similarity%20computes%20the%20similarity,the%20cosine%20similarity%20is%201
-
-
-
-
-
-
