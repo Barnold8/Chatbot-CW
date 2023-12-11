@@ -31,6 +31,7 @@ try:
     from datetime import datetime
     from sys import platform
     from shutil import copyfile, rmtree
+    from shutil import move as shutilMove
     from sklearn.feature_extraction.text import CountVectorizer
     from mutagen.mp3 import MP3
 except ImportError:
@@ -64,6 +65,47 @@ class PlaylistManager:
 
     SONGS_PATH = "Data/Songs"
 
+    allowed_chars = string.ascii_lowercase + "_"
+
+    def startTransaction(context : dict) -> None:
+
+        playlist_action = context["playlist_action"]
+
+        playlist_path = "/".join(os.path.realpath(__file__).split("\\")[:-1])
+
+        current_playlist_path = playlist_path + f"/Data/Playlists/{context['playlist_name']}"
+
+        playlist_exists = os.path.isdir(current_playlist_path)
+
+        # print(playlist_path)
+
+        if playlist_action == "edit":
+            if playlist_exists == False:
+                print(f"JAMSIE: Sorry, there is no such playlist named {context['playlist_name']}, you will need to say something like 'I want to create a playlist'. Don't worry, it's not a problem, I will be glad to help you along the way :D\n\n")
+                return
+            else: # continue here
+                category = context["playlist_edit_category"]
+                if category == "name":
+                    prompt = input("JAMSIE: And what do you want the playlist to be called now?\n\nYOU: ").split(" ")
+
+                    name =  "_".join(prompt)
+
+                    while (set(name.lower()) <= set(PlaylistManager.allowed_chars)) == False:
+                    
+                        name = "_".join(input("JAMSIE: Sorry, for a playlist to work, it must only contain basic english characters. Please try another name\n\nYou: ").split(" "))
+                    
+                    shutilMove(f"Data/Playlists/{context['playlist_name']}", playlist_path + "/Data/Playlists/" + name )
+
+                elif category == "add":
+                    pass
+                elif category == "remove":
+                    pass
+
+        elif playlist_action == "create":
+            pass
+        elif playlist_action == "remove":
+            pass
+        
     def getSongs(PATH : str) -> list[str]:
         """
             Desc:
@@ -962,7 +1004,7 @@ def getPlaylistName(inp: str) -> str:
                 pass
             LOOKAHEAD += 1
 
-        return " ".join(name)
+        return "_".join(name)
 
 def getPlaylistTime(inp: str) -> str:
     try:
@@ -973,8 +1015,15 @@ def getPlaylistTime(inp: str) -> str:
 
 def transactional_name() -> str:
 
-    prompt = string_preprocess(con_exp(input("\nJAMSIE: And what is the name of this playlist?\n\nYOU: ").lower()))
-    return prompt
+    prompt = input("\nJAMSIE: And what is the name of this playlist?\n\nYOU: ").split(" ")
+
+    name =  "_".join(prompt)
+
+    while (set(name.lower()) <= set(PlaylistManager.allowed_chars)) == False:
+        name = "_".join(input("JAMSIE: Sorry, for a playlist to work, it must only contain basic english characters. Please try another name\n\nYou: ").split(" "))
+    
+    return name
+   
 
 def transactional_time() -> str:
 
@@ -1109,8 +1158,8 @@ def transaction(inp:str)-> None:
 
     if context["playlist_action"] == "edit":
         context["playlist_edit_category"] = (transactional_functions["playlist_edit_category"])()
-        print(context["playlist_edit_category"])
-    # AFTER WHILE LOOP, CHECK IF USER SAID THEY WANT TO EDIT THE PLAYLIST
+        
+    PlaylistManager.startTransaction(context)
 
 print(hi_string)
 print("-"*len(hi_string))
