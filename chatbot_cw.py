@@ -97,7 +97,67 @@ class PlaylistManager:
                     shutilMove(f"Data/Playlists/{context['playlist_name']}", playlist_path + "/Data/Playlists/" + name )
 
                 elif category == "add":
-                    pass
+
+                    genres = ["country","metal","pop","rock"]
+                    genres_choices = """
+
+                                    country
+                                    metal
+                                    pop
+                                    rock
+                                    """
+                    genre = string_preprocess(input(f"\nJAMSIE: What genre(s) would you like from the following? {genres_choices}\nYOU: ").lower())
+                    chosen_genres = []
+                    for w in genre.split(" "):
+                        if w in genres:
+                            chosen_genres.append(w)
+
+                    while len(chosen_genres) == 0:
+                        genre = string_preprocess(input(f"\nJAMSIE: Sorry, I didn't recognise any genre(s) here, please pick from the following {genres_choices}\nYOU: ").lower())
+                        for w in genre.split(" "):
+                            if w in genres:
+                                genre = w
+                                break
+
+                    songs = []
+
+                    for category in chosen_genres:
+                        songs_by_genre = list(set(PlaylistManager.getSongs(PlaylistManager.SONGS_PATH + f"/{category}")))
+                        _songs = []
+                        for song in songs_by_genre:
+                            _songs.append(f"Data/Songs/{category}/{song}")
+                        songs += _songs
+
+                    print(songs) 
+                    print("JAMSIE: please input the numbers corresponding to the songs that you wish to add to this playlist!\n") 
+                    
+                    max_num = 1
+
+                    for song in songs:
+                        print(f"\t{songs.index(song)+1} | {song.split('/')[-1]}")
+                        max_num += 1
+
+                    song_choices = input("\nYOU: ")
+
+                    number_pattern = r'\d+'
+                    
+                    numbers = re.findall(number_pattern, song_choices)
+                    
+                    numbers = list(set([int(num) for num in numbers if int(num) < max_num])) # filter out duplicates
+
+                    add_songs = []
+
+                    for number in numbers:
+                        try:
+
+                            add_songs.append(songs[number-1])
+                            copyfile(songs[number-1],f"Data/Playlists/{context['playlist_name']}/" + os.path.basename(songs[number-1]))
+                            print(current_playlist_path + "/")
+
+                        except IOError as _IOError:
+                            print(f"\n\nJAMSIE: Sorry, I couldn't add {songs[number-1]} to {context['playlist_name']}")
+                            
+
                 elif category == "remove":
                     pass
 
@@ -118,7 +178,7 @@ class PlaylistManager:
     def stageSongs(PATH: str,genres: list[str]) -> int:
         """
             Desc:
-                Copies all songs from Data/Playlist directory and puts them into a temporary directory.
+                Get all songs from specified genre directories and then put them into a list, then it will push those songs into a new directory. 
             return: int to say if the playlist exists or not. if you get -1, you can assume the playlist exists already
         """
 
@@ -148,7 +208,6 @@ class PlaylistManager:
             song_time_m, song_time_s = divmod(song.info.length, 60) 
             time_sig = f"%02d" % (song_time_m) + ":" + f"%02d" % (song_time_s)
             print(f"Song: {file.split('.')[0]} | Song length: {time_sig}")
-
             
 # PlaylistManager.stageSongs("Snoozing",["pop","country"])
 
@@ -706,7 +765,7 @@ def getName(inp: str, attempts: int) -> None:
         attempts += 1
         getName(input(f"JAMSIE: What would you like me to call you?\nYOU: "),attempts)
 
-def stp(inp: string) -> None: # could use NLG here if wanted/needed
+def stp(inp: string) -> None:
     """
         Desc:
             This function is the small talk processor. It will grab the small talk and intent match it 
