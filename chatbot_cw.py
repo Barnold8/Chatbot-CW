@@ -46,16 +46,40 @@ except ImportError:
 
     decider = input(f"The following libraries are needed for this program to work {libs}saying 'n' will stop the program from running, saying 'y' will install these libraries\n\n\t    Do you wish to install this software? y/n? ").lower()
     if decider == "y":
-        print("Installing nltk...")
-        os.system("pip install nltk")
-        print("Installing scikit-learn...")
-        os.system("pip install scikit-learn")
-        print("Installing numpy...")
-        os.system("pip install numpy")
-        print("Installing mutagen...")
-        os.system("pip install mutagen")
-        print("Done!")
-        os.system('cls' if os.name=='nt' else 'clear')
+        # I cant get access to uni systems so this is how im going to try my best to ensure that the code actually works and installs libs needed. Please try and get this to work if you cant, i am actually begging you
+        try:
+            print("Installing nltk...")
+            os.system("pip install nltk")
+            os.system("pip3 install nltk")
+            os.system("python3 -m pip nltk")
+        except Exception as e:
+            print(f"Couldnt install nltk because of error {e}")
+        try:
+            print("Installing scikit-learn...")
+            os.system("pip install scikit-learn")
+            os.system("pip3 install scikit-learn")
+            os.system("python3 -m pip scikit-learn")
+        except Exception as e:
+            print(f"Couldnt install scikit-learn because of error {e}")
+        try:
+            print("Installing numpy...")
+            os.system("pip install numpy")
+            os.system("pip3 install numpy")
+            os.system("python3 -m pip install numpy")
+        except Exception as e:
+            print(f"Couldnt install numpy because of error {e}")
+        try:
+            print("Installing mutagen...")
+            os.system("pip install mutagen")
+            os.system("pip3 install mutagen")
+            os.system("python3 -m pip install mutagen")
+        except Exception as e:
+            print(f"Couldnt install mutagen because of error {e}")
+        try:
+            print("Done!")
+            os.system('cls' if os.name=='nt' else 'clear')
+        except Exception as e:
+            print(f"Couldnt clear console? Reason {e}")
     else:
         exit()
 
@@ -844,7 +868,7 @@ def getName(inp: str, attempts: int) -> None:
             return user_name_input
         
     except IndexError as name_error:
-        print("Sorry, I couldn't quite catch your name. I am only limited to english names.")
+        print("JAMSIE: Sorry, I couldn't quite catch your name. I am only limited to english names.")
         attempts += 1
         getName(input(f"JAMSIE: What would you like me to call you?\nYOU: "),attempts)
 
@@ -1273,7 +1297,7 @@ def transaction(inp:str)-> None:
     context["playlist_action"] = getPlaylistAction(inp)     # To figure out if the user wants to do an action yet or not 
     context["playlist_name"] = getPlaylistName(inp)
     context["playlist_time"] = getPlaylistTime(inp)
-    print(context)
+    
     ## Try and extract as many features as possible from the input to begin with
     
     # While loop for clarification on data we need and other context scenarios
